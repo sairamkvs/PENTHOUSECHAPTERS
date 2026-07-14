@@ -49,6 +49,42 @@ export default function Portfolio() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Title reveal animation using ScrollTrigger
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        ".portfolio-title .reveal-char",
+        { y: "110%", skewY: 5 },
+        {
+          y: "0%",
+          skewY: 0,
+          stagger: 0.02,
+          duration: 0.8,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: ".portfolio-title",
+            start: "top 85%",
+            toggleActions: "play none none reverse",
+          },
+        }
+      );
+    }, containerRef);
+
+    return () => ctx.revert();
+  }, []);
+
+  const splitTextIntoChars = (text: string) => {
+    return text.split("").map((char, idx) => (
+      <span key={idx} className="inline-block overflow-hidden">
+        <span className="inline-block reveal-char transform translate-y-[110%] select-none">
+          {char === " " ? "\u00A0" : char}
+        </span>
+      </span>
+    ));
+  };
+
   // GSAP Horizontal Scroll Setup
   useEffect(() => {
     // Only configure horizontal scroll on desktop and if we have filtered items
@@ -108,6 +144,29 @@ export default function Portfolio() {
       ScrollTrigger.refresh();
     }, 150);
   }, [activeFilter, isDesktop]);
+
+  // Liquid ripple hover effect
+  const handleMouseEnterCard = () => {
+    const mapNode = document.querySelector("#displacement-map-node");
+    if (!mapNode) return;
+
+    gsap.killTweensOf(mapNode);
+    gsap.fromTo(mapNode,
+      { attr: { scale: 0 } },
+      {
+        attr: { scale: 30 },
+        duration: 0.45,
+        ease: "power2.out",
+        onComplete: () => {
+          gsap.to(mapNode, {
+            attr: { scale: 0 },
+            duration: 0.6,
+            ease: "power2.inOut"
+          });
+        }
+      }
+    );
+  };
 
   // 3D Card Tilt logic using GSAP
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -172,8 +231,8 @@ export default function Portfolio() {
                   OUR PORTFOLIO
                 </h2>
               </div>
-              <h3 className="font-syne text-4xl lg:text-5xl font-extrabold text-white uppercase leading-tight">
-                Selected Projects
+              <h3 className="portfolio-title font-syne text-4xl lg:text-5xl font-extrabold text-white uppercase leading-tight flex flex-wrap gap-x-[0.2em]">
+                {splitTextIntoChars("Selected Projects")}
               </h3>
             </div>
 
@@ -219,6 +278,7 @@ export default function Portfolio() {
                       onClick={() => handleOpenLightbox(item)}
                       onMouseMove={handleMouseMove}
                       onMouseLeave={handleMouseLeave}
+                      onMouseEnter={handleMouseEnterCard}
                       className={cn(
                         "group relative bg-brand-dark/40 border border-white/5 rounded-2xl overflow-hidden cursor-none shadow-[0_10px_35px_rgba(0,0,0,0.5)] hover:shadow-[0_20px_50px_rgba(229,169,25,0.1)] transition-all duration-500 hover:border-brand-gold/30 flex flex-col justify-end p-8 select-none",
                         item.aspectRatio === "portrait" ? "w-[30vw] h-[58vh]" : "w-[44vw] h-[58vh]"
@@ -228,7 +288,10 @@ export default function Portfolio() {
                     >
                       {/* Media container with parallax spacing */}
                       <div className="absolute inset-0 z-0 overflow-hidden rounded-2xl">
-                        <div className="parallax-media absolute -inset-x-12 inset-y-0 w-[calc(100%+96px)] h-full transition-transform duration-700 ease-out group-hover:scale-[1.04]">
+                        <div 
+                          className="parallax-media absolute -inset-x-12 inset-y-0 w-[calc(100%+96px)] h-full transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+                          style={{ filter: "url(#liquid-ripple-filter)" }}
+                        >
                           {isVideo ? (
                             <video
                               src={item.mediaUrl}
@@ -295,8 +358,8 @@ export default function Portfolio() {
                   OUR PORTFOLIO
                 </h2>
               </div>
-              <h3 className="font-syne text-3xl font-extrabold text-white uppercase leading-tight">
-                Selected Projects
+              <h3 className="portfolio-title font-syne text-3xl font-extrabold text-white uppercase leading-tight flex flex-wrap gap-x-[0.2em]">
+                {splitTextIntoChars("Selected Projects")}
               </h3>
             </div>
 
@@ -382,6 +445,16 @@ export default function Portfolio() {
         mediaUrl={selectedItem?.mediaUrl || ""}
         title={selectedItem?.title || ""}
       />
+
+      {/* SVG Liquid Displacement Map Filter */}
+      <svg className="hidden absolute w-0 h-0 pointer-events-none">
+        <defs>
+          <filter id="liquid-ripple-filter">
+            <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="3" result="noise" seed="1" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="0" xChannelSelector="R" yChannelSelector="G" id="displacement-map-node" />
+          </filter>
+        </defs>
+      </svg>
     </div>
   );
 }

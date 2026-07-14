@@ -26,7 +26,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     // Main ticker timeline
     const tl = gsap.timeline({
       onComplete: () => {
-        // Curtain wipe slide-out
+        // Liquid Morphing curtain transition
         const curtainTl = gsap.timeline({
           onComplete: () => {
             // Restore scroll
@@ -36,18 +36,30 @@ export default function Preloader({ onComplete }: PreloaderProps) {
           }
         });
 
-        // Wipe slide up using clipPath polygon transition
-        curtainTl.to(".preloader-wrap", {
-          clipPath: "polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)",
-          duration: 1.2,
-          ease: "power4.inOut"
+        // Morph the SVG path to create an elastic drop/wipe reveal (no MorphSVG plugin required)
+        curtainTl.to("#preloader-svg-path", {
+          attr: { d: "M 0 0 L 100 0 L 100 0 Q 50 80 0 0 Z" },
+          duration: 0.6,
+          ease: "power2.in"
+        }).to("#preloader-svg-path", {
+          attr: { d: "M 0 0 L 100 0 L 100 0 Q 50 0 0 0 Z" },
+          duration: 0.6,
+          ease: "power4.out"
         });
+
+        // Fade out the loading content slightly earlier
+        curtainTl.to(".preloader-content", {
+          opacity: 0,
+          y: -50,
+          duration: 0.4,
+          ease: "power2.inOut"
+        }, 0);
       }
     });
 
     tl.to(progressObj, {
       value: 100,
-      duration: 2.5,
+      duration: 2.8,
       ease: "power2.out",
       onUpdate: () => {
         const currentVal = Math.floor(progressObj.value);
@@ -87,10 +99,21 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   };
 
   return (
-    <div
-      className="preloader-wrap fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-brand-black"
-      style={{ clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)" }}
-    >
+    <div className="preloader-wrap fixed inset-0 z-[9999] flex flex-col items-center justify-center pointer-events-auto">
+      
+      {/* Liquid Morphing SVG Background Curtain */}
+      <svg
+        className="absolute inset-0 w-full h-full fill-brand-black pointer-events-none z-0"
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+      >
+        <path
+          id="preloader-svg-path"
+          d="M 0 0 L 100 0 L 100 100 Q 50 100 0 100 Z"
+          className="transition-colors duration-300"
+        />
+      </svg>
+
       {/* Background Video Player */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         <video
@@ -100,7 +123,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
           loop
           muted={isMuted}
           playsInline
-          className="w-full h-full object-cover opacity-40"
+          className="w-full h-full object-cover opacity-25"
         />
         {/* Semi-dark mask to keep loader readable */}
         <div className="absolute inset-0 bg-brand-black/60" />
@@ -132,7 +155,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
       </button>
 
       {/* Loader UI Panel */}
-      <div className="relative z-10 flex flex-col items-center select-none">
+      <div className="preloader-content relative z-10 flex flex-col items-center select-none">
         {/* Animated Brand Logo */}
         <div className="mb-4 overflow-hidden h-14 flex items-center justify-center">
           <span className="text-4xl font-extrabold tracking-[0.25em] font-syne text-brand-gold preloader-animate">

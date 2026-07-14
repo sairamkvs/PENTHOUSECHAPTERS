@@ -71,7 +71,7 @@ export default function Navbar() {
             href="#hero" 
             ref={logoRef}
             className="flex flex-col focus:outline-none cursor-none"
-            data-cursor="hover"
+            data-magnetic
             onClick={(e) => {
               e.preventDefault();
               document.getElementById("hero")?.scrollIntoView({ behavior: "smooth" });
@@ -110,7 +110,7 @@ export default function Navbar() {
               onClick={toggleSound}
               ref={soundButtonRef}
               className="flex items-center gap-2.5 px-4 py-2 rounded-full border border-white/10 bg-white/5 hover:border-brand-gold/30 hover:bg-brand-gold/5 text-white/80 hover:text-brand-gold transition-all duration-300 font-outfit text-[10px] md:text-xs font-bold tracking-widest cursor-none backdrop-blur-md h-9"
-              data-cursor="hover"
+              data-magnetic
               title={isAudioActive ? "Mute Ambient Soundtrack" : "Unmute Ambient Soundtrack"}
             >
               {/* Animating Waveform Bars */}
@@ -127,7 +127,7 @@ export default function Navbar() {
               href="#contact"
               ref={ctaButtonRef}
               className="hidden md:flex items-center gap-2 px-5 py-2 rounded-full border border-brand-gold/30 bg-brand-gold/5 text-white font-outfit text-xs font-semibold tracking-wider hover:bg-brand-gold hover:text-black transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold group h-9 cursor-none"
-              data-cursor="hover"
+              data-magnetic
               onClick={(e) => {
                 e.preventDefault();
                 handleLinkClick("#contact");

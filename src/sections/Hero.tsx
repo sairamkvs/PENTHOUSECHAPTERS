@@ -227,7 +227,7 @@ export default function Hero({ isLoaded = false }: HeroProps) {
             ref={contactCtaRef}
             onClick={() => handleScrollTo("#contact")}
             className="hero-cta-button opacity-0 w-full sm:w-auto px-7 sm:px-8 py-3.5 sm:py-4 rounded-full bg-brand-gold text-black font-outfit text-xs sm:text-sm font-bold tracking-wider hover:bg-white hover:text-black transition-all duration-300 shadow-lg shadow-brand-gold/15 hover:shadow-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold cursor-none"
-            data-cursor="hover"
+            data-magnetic
           >
             LET'S BUILD YOUR BRAND
           </button>
@@ -236,7 +236,7 @@ export default function Hero({ isLoaded = false }: HeroProps) {
             ref={portfolioCtaRef}
             onClick={() => handleScrollTo("#portfolio")}
             className="hero-cta-button opacity-0 w-full sm:w-auto flex items-center justify-center gap-2 sm:gap-3 px-7 sm:px-8 py-3.5 sm:py-4 rounded-full border border-white/20 bg-white/5 text-white font-outfit text-xs sm:text-sm font-semibold tracking-wider hover:bg-white hover:text-black transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white group cursor-none"
-            data-cursor="play"
+            data-magnetic
           >
             <Play className="h-3.5 w-3.5 fill-current group-hover:scale-110 transition-transform" />
             VIEW PORTFOLIO
