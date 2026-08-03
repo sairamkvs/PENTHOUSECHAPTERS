@@ -5,57 +5,50 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ArrowLeft, ArrowRight, Play } from "lucide-react";
 import { PORTFOLIO_DATA } from "@/constants/data";
 import { PortfolioItem } from "@/types";
 import Lightbox from "@/components/Lightbox";
 import { cn } from "@/lib/utils";
 
-// Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger);
 
-const FILTERS = [
-  { label: "All Work", value: "all" },
-  { label: "Films", value: "films" },
-  { label: "Corporate", value: "corporate" },
-  { label: "Photography", value: "photography" },
-  { label: "360° Immersive", value: "immersive" },
-  { label: "Aerial", value: "aerial" },
-  { label: "Post Production", value: "post" }
-];
-
 export default function Portfolio() {
-  const [activeFilter, setActiveFilter] = useState("all");
+  const [activeTab, setActiveTab] = useState<"films" | "photography">("films");
   const [selectedItem, setSelectedItem] = useState<PortfolioItem | null>(null);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [hoveredVideoId, setHoveredVideoId] = useState<string | null>(null);
+
+  // 3D Carousel State for Photography
+  const [carouselIndex, setCarouselIndex] = useState(0);
   const [isDesktop, setIsDesktop] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
+  const wheelLock = useRef(false);
+  const dragStart = useRef(0);
+  const isDragging = useRef(false);
 
-  // Filter items
-  const filteredItems = PORTFOLIO_DATA.filter((item) => {
-    if (activeFilter === "all") return true;
-    return item.category === activeFilter;
-  });
+  // Group data by tab category media type
+  const filmItems = PORTFOLIO_DATA.filter((item) => item.mediaType === "video");
+  const photoItems = PORTFOLIO_DATA.filter((item) => item.mediaType === "image");
 
-  // Track responsive screen state
+  // Track desktop screen limits
   useEffect(() => {
     const handleResize = () => {
       setIsDesktop(window.innerWidth >= 1024);
     };
-    
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Title reveal animation using ScrollTrigger
+  // Section title reveal staggered animations
   useEffect(() => {
     if (!containerRef.current) return;
 
     const ctx = gsap.context(() => {
       gsap.fromTo(
-        ".portfolio-title .reveal-char",
+        ".works-title .reveal-char",
         { y: "110%", skewY: 5 },
         {
           y: "0%",
@@ -64,7 +57,7 @@ export default function Portfolio() {
           duration: 0.8,
           ease: "power3.out",
           scrollTrigger: {
-            trigger: ".portfolio-title",
+            trigger: ".works-title",
             start: "top 85%",
             toggleActions: "play none none reverse",
           },
@@ -73,7 +66,78 @@ export default function Portfolio() {
     }, containerRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [activeTab]);
+
+  // Carousel navigation handlers
+  const nextSlide = () => {
+    setCarouselIndex((prev) => (prev + 1) % photoItems.length);
+  };
+
+  const prevSlide = () => {
+    setCarouselIndex((prev) => (prev - 1 + photoItems.length) % photoItems.length);
+  };
+
+  // Keyboard navigation for carousel
+  useEffect(() => {
+    if (activeTab !== "photography") return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") {
+        prevSlide();
+      } else if (e.key === "ArrowRight") {
+        nextSlide();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [activeTab, photoItems.length]);
+
+  // Wheel slide triggers
+  const handleWheel = (e: React.WheelEvent) => {
+    if (activeTab !== "photography" || !isDesktop) return;
+    if (wheelLock.current) return;
+
+    if (Math.abs(e.deltaY) > 15) {
+      wheelLock.current = true;
+      if (e.deltaY > 0) {
+        nextSlide();
+      } else {
+        prevSlide();
+      }
+      setTimeout(() => {
+        wheelLock.current = false;
+      }, 650);
+    }
+  };
+
+  // Drag physics tracking
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (activeTab !== "photography" || !isDesktop) return;
+    dragStart.current = e.clientX;
+    isDragging.current = true;
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging.current) return;
+    const diff = e.clientX - dragStart.current;
+
+    if (Math.abs(diff) > 75) {
+      if (diff > 0) {
+        prevSlide();
+      } else {
+        nextSlide();
+      }
+      isDragging.current = false;
+    }
+  };
+
+  const handleMouseUp = () => {
+    isDragging.current = false;
+  };
+
+  const handleOpenLightbox = (item: PortfolioItem) => {
+    setSelectedItem(item);
+    setIsLightboxOpen(true);
+  };
 
   const splitTextIntoChars = (text: string) => {
     return text.split("").map((char, idx) => (
@@ -85,376 +149,313 @@ export default function Portfolio() {
     ));
   };
 
-  // GSAP Horizontal Scroll Setup
-  useEffect(() => {
-    // Only configure horizontal scroll on desktop and if we have filtered items
-    if (!isDesktop || !containerRef.current || !trackRef.current) return;
-
-    // Small delay to let DOM render completely and compute exact scroll widths
-    const ctx = gsap.context(() => {
-      const track = trackRef.current;
-      const container = containerRef.current;
-      if (!track || !container) return;
-
-      const totalScrollWidth = track.scrollWidth;
-      const viewportWidth = window.innerWidth;
-      const scrollDistance = totalScrollWidth - viewportWidth;
-
-      if (scrollDistance <= 0) return;
-
-      // Pin the section and translate the track left
-      const pinTrigger = gsap.fromTo(
-        track,
-        { x: 0 },
-        {
-          x: -scrollDistance,
-          ease: "none",
-          scrollTrigger: {
-            trigger: container,
-            pin: true,
-            scrub: 0.8,
-            start: "top top",
-            end: () => `+=${scrollDistance}`,
-            invalidateOnRefresh: true,
-            // Track progress for parallax styling
-            onUpdate: (self) => {
-              // Apply horizontal parallax mapping on background elements
-              const parallaxEls = track.querySelectorAll(".parallax-media");
-              parallaxEls.forEach((el: any) => {
-                // Shift media in the opposite direction of scroll progress
-                gsap.set(el, { x: (self.progress * 80) - 40 });
-              });
-            }
-          }
-        }
-      );
-
-      // Clean up on component toggle or filter updates
-      return () => {
-        pinTrigger.scrollTrigger?.kill();
-      };
-    }, containerRef);
-
-    return () => ctx.revert();
-  }, [isDesktop, activeFilter, filteredItems.length]);
-
-  // Refresh ScrollTrigger whenever active items filter changes
-  useEffect(() => {
-    setTimeout(() => {
-      ScrollTrigger.refresh();
-    }, 150);
-  }, [activeFilter, isDesktop]);
-
-  // Liquid ripple hover effect
-  const handleMouseEnterCard = () => {
-    const mapNode = document.querySelector("#displacement-map-node");
-    if (!mapNode) return;
-
-    gsap.killTweensOf(mapNode);
-    gsap.fromTo(mapNode,
-      { attr: { scale: 0 } },
-      {
-        attr: { scale: 30 },
-        duration: 0.45,
-        ease: "power2.out",
-        onComplete: () => {
-          gsap.to(mapNode, {
-            attr: { scale: 0 },
-            duration: 0.6,
-            ease: "power2.inOut"
-          });
-        }
-      }
-    );
-  };
-
-  // 3D Card Tilt logic using GSAP
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const card = e.currentTarget;
-    const rect = card.getBoundingClientRect();
-    
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    
-    const rotateX = ((centerY - y) / centerY) * 8; // slight 3D rotation
-    const rotateY = ((x - centerX) / centerX) * 8;
-
-    gsap.to(card, {
-      rotateX,
-      rotateY,
-      transformPerspective: 1000,
-      ease: "power2.out",
-      duration: 0.3
-    });
-  };
-
-  const handleMouseLeave = (e: React.MouseEvent<HTMLDivElement>) => {
-    const card = e.currentTarget;
-    
-    // Reset video autoplay on mouse leave
-    const video = card.querySelector("video");
-    if (video) {
-      try {
-        video.currentTime = 0;
-      } catch (e) {}
-    }
-
-    gsap.to(card, {
-      rotateX: 0,
-      rotateY: 0,
-      ease: "power3.out",
-      duration: 0.5
-    });
-  };
-
-  const handleOpenLightbox = (item: PortfolioItem) => {
-    setSelectedItem(item);
-    setIsLightboxOpen(true);
-  };
-
   return (
-    <div ref={containerRef} id="portfolio" className="relative w-full bg-brand-black overflow-hidden select-none">
-      
-      {/* 1. DESKTOP IMPLEMENTATION (Horizontal Scroll Track) */}
-      {isDesktop ? (
-        <div className="min-h-screen w-full flex flex-col justify-center py-20 px-12 relative">
-          
-          {/* Section Header elements absolute-to-track layout */}
-          <div className="max-w-7xl w-full mx-auto flex items-end justify-between mb-12">
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <span className="h-[1px] w-8 bg-brand-gold" />
-                <h2 className="font-outfit text-xs font-bold tracking-[0.3em] text-brand-gold uppercase">
-                  OUR PORTFOLIO
-                </h2>
-              </div>
-              <h3 className="portfolio-title font-syne text-4xl lg:text-5xl font-extrabold text-white uppercase leading-tight flex flex-wrap gap-x-[0.2em]">
-                {splitTextIntoChars("Selected Projects")}
-              </h3>
-            </div>
+    <div
+      ref={containerRef}
+      id="portfolio"
+      className="relative w-full bg-brand-black py-24 border-t border-white/5 overflow-hidden select-none"
+      onWheel={handleWheel}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
+    >
+      {/* Background ambient lighting */}
+      <div className="absolute top-1/3 left-1/4 h-[500px] w-[500px] rounded-full bg-brand-gold/5 blur-[120px] pointer-events-none" />
 
-            {/* Filter buttons */}
-            <div className="flex flex-wrap gap-2 max-w-[60%]">
-              {FILTERS.map((filter) => (
-                <button
-                  key={filter.value}
-                  onClick={() => setActiveFilter(filter.value)}
-                  className={cn(
-                    "px-4 py-2 rounded-full font-outfit text-[11px] font-bold uppercase tracking-wider transition-all duration-300 border focus:outline-none cursor-none",
-                    activeFilter === filter.value
-                      ? "bg-brand-gold border-brand-gold text-black shadow-md shadow-brand-gold/10"
-                      : "border-white/10 hover:border-white/30 text-white/80"
-                  )}
-                  data-cursor="hover"
-                >
-                  {filter.label}
-                </button>
-              ))}
+      <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
+
+        {/* Dynamic header and Tabs selector */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
+          <div>
+            <div className="flex items-center gap-3 mb-4">
+              <span className="h-[1px] w-8 bg-brand-gold" />
+              <h2 className="font-outfit text-xs font-bold tracking-[0.3em] text-brand-gold uppercase">
+                SELECTED WORKS
+              </h2>
             </div>
+            <h3 className="works-title font-syne text-4xl lg:text-4xl font-extrabold text-white uppercase leading-none tracking-wide flex flex-wrap gap-x-[0.22em]">
+              {activeTab === "films"
+                ? splitTextIntoChars("Featured Films")
+                : splitTextIntoChars("Photography")}
+            </h3>
           </div>
 
-          {/* Horizontal Track Wrapper */}
-          <div className="relative w-full h-[62vh]">
-            <div 
-              ref={trackRef} 
-              className="absolute left-0 top-0 flex gap-8 whitespace-nowrap px-12 h-full items-center shrink-0 w-max"
+          {/* Premium tabs switcher */}
+          <div className="flex items-center gap-2 bg-brand-dark/60 p-1.5 rounded-full border border-white/10 max-w-max self-start md:self-auto">
+            <button
+              onClick={() => {
+                setActiveTab("films");
+                setCarouselIndex(0);
+              }}
+              className={cn(
+                "px-6 py-2.5 rounded-full font-outfit text-xs font-bold tracking-widest uppercase transition-all duration-300 cursor-none",
+                activeTab === "films"
+                  ? "bg-brand-gold text-black shadow-lg shadow-brand-gold/10"
+                  : "text-white/60 hover:text-white"
+              )}
+              data-magnetic
             >
-              <AnimatePresence mode="popLayout">
-                {filteredItems.map((item, index) => {
-                  const isVideo = item.mediaType === "video";
-                  const paddedIndex = (index + 1).toString().padStart(2, "0");
-
-                  return (
-                    <motion.div
-                      key={item.id}
-                      layout
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      transition={{ duration: 0.4 }}
-                      onClick={() => handleOpenLightbox(item)}
-                      onMouseMove={handleMouseMove}
-                      onMouseLeave={handleMouseLeave}
-                      onMouseEnter={handleMouseEnterCard}
-                      className={cn(
-                        "group relative bg-brand-dark/40 border border-white/5 rounded-2xl overflow-hidden cursor-none shadow-[0_10px_35px_rgba(0,0,0,0.5)] hover:shadow-[0_20px_50px_rgba(229,169,25,0.1)] transition-all duration-500 hover:border-brand-gold/30 flex flex-col justify-end p-8 select-none",
-                        item.aspectRatio === "portrait" ? "w-[30vw] h-[58vh]" : "w-[44vw] h-[58vh]"
-                      )}
-                      style={{ transformStyle: "preserve-3d" }}
-                      data-cursor={isVideo ? "play" : "view"}
-                    >
-                      {/* Media container with parallax spacing */}
-                      <div className="absolute inset-0 z-0 overflow-hidden rounded-2xl">
-                        <div 
-                          className="parallax-media absolute -inset-x-12 inset-y-0 w-[calc(100%+96px)] h-full transition-transform duration-700 ease-out group-hover:scale-[1.04]"
-                          style={{ filter: "url(#liquid-ripple-filter)" }}
-                        >
-                          {isVideo ? (
-                            <video
-                              src={item.mediaUrl}
-                              autoPlay
-                              loop
-                              muted
-                              playsInline
-                              className="w-full h-full object-cover brightness-[0.55] group-hover:brightness-[0.4]"
-                            />
-                          ) : (
-                            <Image
-                              src={item.mediaUrl}
-                              alt={item.title}
-                              fill
-                              className="object-cover brightness-[0.55] group-hover:brightness-[0.4]"
-                              sizes="40vw"
-                              priority
-                            />
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Top Corner Index */}
-                      <span 
-                        className="absolute top-8 left-8 font-outfit text-5xl font-extrabold text-white/10 group-hover:text-brand-gold/25 transition-colors select-none tracking-tighter"
-                        style={{ transform: "translateZ(20px)" }}
-                      >
-                        {paddedIndex}
-                      </span>
-
-                      {/* Dark Gradient Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-brand-black via-brand-black/30 to-transparent pointer-events-none z-10" />
-
-                      {/* Title Info */}
-                      <div 
-                        className="relative z-20 pointer-events-none select-none"
-                        style={{ transform: "translateZ(40px)" }}
-                      >
-                        <span className="font-outfit text-[10px] font-bold tracking-[0.2em] text-brand-gold uppercase block mb-1.5">
-                          {item.categoryLabel}
-                        </span>
-                        <h4 className="font-syne text-xl lg:text-2xl font-bold text-white uppercase group-hover:text-brand-gold transition-colors leading-tight whitespace-normal max-w-lg">
-                          {item.title}
-                        </h4>
-                        <p className="font-inter text-xs text-brand-muted max-w-sm mt-3 opacity-0 group-hover:opacity-100 transition-all duration-300 line-clamp-2">
-                          {item.description}
-                        </p>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </AnimatePresence>
-            </div>
+              Featured Films
+            </button>
+            <button
+              onClick={() => {
+                setActiveTab("photography");
+                setCarouselIndex(0);
+              }}
+              className={cn(
+                "px-6 py-2.5 rounded-full font-outfit text-xs font-bold tracking-widest uppercase transition-all duration-300 cursor-none",
+                activeTab === "photography"
+                  ? "bg-brand-gold text-black shadow-lg shadow-brand-gold/10"
+                  : "text-white/60 hover:text-white"
+              )}
+              data-magnetic
+            >
+              Photography
+            </button>
           </div>
         </div>
-      ) : (
-        /* 2. MOBILE IMPLEMENTATION (Responsive Stacked Grid) */
-        <div className="w-full px-6 py-20 border-t border-white/5">
-          <div className="flex flex-col gap-6 mb-12">
-            <div>
-              <div className="flex items-center gap-3 mb-3">
-                <span className="h-[1px] w-8 bg-brand-gold" />
-                <h2 className="font-outfit text-xs font-bold tracking-[0.3em] text-brand-gold uppercase">
-                  OUR PORTFOLIO
-                </h2>
-              </div>
-              <h3 className="portfolio-title font-syne text-3xl font-extrabold text-white uppercase leading-tight flex flex-wrap gap-x-[0.2em]">
-                {splitTextIntoChars("Selected Projects")}
-              </h3>
-            </div>
 
-            {/* Filter buttons */}
-            <div className="flex flex-wrap gap-1.5 w-full">
-              {FILTERS.map((filter) => (
-                <button
-                  key={filter.value}
-                  onClick={() => setActiveFilter(filter.value)}
-                  className={cn(
-                    "px-3 py-1.5 rounded-full font-outfit text-[9px] font-bold uppercase tracking-wider transition-all duration-300 border focus:outline-none",
-                    activeFilter === filter.value
-                      ? "bg-brand-gold border-brand-gold text-black"
-                      : "border-white/10 text-white/80"
-                  )}
-                >
-                  {filter.label}
-                </button>
-              ))}
-            </div>
-          </div>
+        {/* Tab Content Orchestrator */}
+        <AnimatePresence mode="wait">
 
-          {/* Simple stacked list grid */}
-          <div className="flex flex-col gap-6 w-full">
-            <AnimatePresence mode="popLayout">
-              {filteredItems.map((item) => {
-                const isVideo = item.mediaType === "video";
-                
+          {/* TAB 1: FEATURED FILMS EXPERIENCE */}
+          {activeTab === "films" && (
+            <motion.div
+              key="films-tab"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -30 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12"
+            >
+              {filmItems.map((item, idx) => {
+                const isHovered = hoveredVideoId === item.id;
+                const paddedIndex = (idx + 1).toString().padStart(2, "0");
+
                 return (
-                  <motion.div
+                  <div
                     key={item.id}
-                    layout
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
                     onClick={() => handleOpenLightbox(item)}
-                    className="relative w-full aspect-video rounded-xl overflow-hidden border border-white/5 flex flex-col justify-end p-5 shadow-lg active:scale-[0.98] transition-transform duration-200"
+                    onMouseEnter={() => isDesktop && setHoveredVideoId(item.id)}
+                    onMouseLeave={() => isDesktop && setHoveredVideoId(null)}
+                    className="group relative bg-brand-dark/30 border border-white/5 rounded-2xl overflow-hidden cursor-none shadow-[0_15px_40px_rgba(0,0,0,0.6)] hover:shadow-[0_25px_50px_rgba(229,169,25,0.1)] transition-all duration-500 hover:border-brand-gold/30 aspect-video flex flex-col justify-end"
+                    data-cursor="play"
                   >
-                    <div className="absolute inset-0 z-0">
-                      {isVideo ? (
+                    {/* Media Container with Cinematic Scale */}
+                    <div className="absolute inset-0 z-0 overflow-hidden">
+                      <div
+                        className={cn(
+                          "w-full h-full transition-transform duration-750 ease-out",
+                          isHovered ? "scale-[1.06]" : "scale-100"
+                        )}
+                      >
                         <video
                           src={item.mediaUrl}
-                          autoPlay
+                          ref={(el) => {
+                            if (!isDesktop) return;
+                            if (el) {
+                              if (isHovered) {
+                                el.play().catch(() => { });
+                              } else {
+                                el.pause();
+                                el.currentTime = 0;
+                              }
+                            }
+                          }}
                           loop
                           muted
                           playsInline
-                          className="w-full h-full object-cover brightness-[0.55]"
+                          className="w-full h-full object-cover brightness-[0.55] group-hover:brightness-[0.4] transition-all duration-500"
                         />
-                      ) : (
+                      </div>
+                    </div>
+
+                    {/* Gradient Shadow Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-brand-black via-black/30 to-transparent pointer-events-none z-1" />
+
+                    {/* Top Index Corner */}
+                    <span className="absolute top-6 left-6 font-outfit text-4xl font-extrabold text-white/5 group-hover:text-brand-gold/15 transition-colors select-none tracking-tighter leading-none">
+                      {paddedIndex}
+                    </span>
+
+                    {/* Metadata Overlay - Fades/Slides in on hover */}
+                    <div
+                      className={cn(
+                        "relative z-10 p-6 md:p-8 flex flex-col gap-2 transition-all duration-500",
+                        isDesktop
+                          ? isHovered
+                            ? "opacity-100 translate-y-0"
+                            : "opacity-0 translate-y-4"
+                          : "opacity-100 translate-y-0"
+                      )}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Play className="h-3 w-3 fill-brand-gold text-brand-gold animate-pulse" />
+                        <span className="font-outfit text-[9px] font-bold tracking-[0.25em] text-brand-gold uppercase">
+                          {item.categoryLabel}
+                        </span>
+                      </div>
+                      <h4 className="font-syne text-lg md:text-xl font-extrabold text-white uppercase tracking-wide leading-tight">
+                        {item.title}
+                      </h4>
+                      {item.client && (
+                        <span className="font-inter text-xs text-brand-muted/75">
+                          Client: {item.client}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </motion.div>
+          )}
+
+          {/* TAB 2: PHOTOGRAPHY EXPERIENCE (3D CAROUSEL) */}
+          {activeTab === "photography" && (
+            <motion.div
+              key="photo-tab"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -30 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="relative w-full min-h-[55vh] flex flex-col justify-center items-center py-8"
+            >
+              {/* Carousel Deck Container */}
+              <div
+                className="relative w-full max-w-5xl h-[45vh] flex items-center justify-center"
+                style={{ perspective: "1000px" }}
+              >
+                {photoItems.map((item, idx) => {
+                  const offset = idx - carouselIndex;
+                  const isActive = offset === 0;
+                  const isVisible = Math.abs(offset) <= 1;
+
+                  // CSS 3D Rotations and Translations logic
+                  let transformStyle = "scale(0.7) translateZ(-200px) rotateY(0deg) translateX(0px)";
+                  let opacity = 0;
+                  let zIndex = 0;
+
+                  if (offset === 0) {
+                    transformStyle = "scale(1) translateZ(0px) rotateY(0deg) translateX(0px)";
+                    opacity = 1;
+                    zIndex = 10;
+                  } else if (offset === -1 || (carouselIndex === 0 && idx === photoItems.length - 1)) {
+                    // Left element
+                    transformStyle = "scale(0.84) translateZ(-110px) rotateY(20deg) translateX(-20%)";
+                    opacity = 0.65;
+                    zIndex = 5;
+                  } else if (offset === 1 || (carouselIndex === photoItems.length - 1 && idx === 0)) {
+                    // Right element
+                    transformStyle = "scale(0.84) translateZ(-110px) rotateY(-20deg) translateX(20%)";
+                    opacity = 0.65;
+                    zIndex = 5;
+                  }
+
+                  return (
+                    <div
+                      key={item.id}
+                      onClick={() => isActive ? handleOpenLightbox(item) : setCarouselIndex(idx)}
+                      className={cn(
+                        "absolute w-[70vw] md:w-[48vw] xl:w-[42vw] h-full rounded-2xl overflow-hidden border border-white/10 shadow-2xl transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] select-none",
+                        isActive ? "cursor-none" : "cursor-pointer"
+                      )}
+                      style={{
+                        transform: transformStyle,
+                        opacity: isVisible ? opacity : 0,
+                        zIndex: zIndex,
+                        transformStyle: "preserve-3d",
+                      }}
+                      data-cursor={isActive ? "view" : "drag"}
+                    >
+                      <div className="absolute inset-0 w-full h-full relative">
                         <Image
                           src={item.mediaUrl}
                           alt={item.title}
                           fill
-                          className="object-cover brightness-[0.55]"
-                          sizes="100vw"
+                          className={cn(
+                            "object-cover brightness-[0.65] transition-all duration-700",
+                            isActive ? "brightness-[0.75]" : "brightness-[0.4]"
+                          )}
+                          sizes="(max-width: 768px) 70vw, 40vw"
+                          priority
                         />
+                      </div>
+
+                      {/* Ambient Gradient overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent pointer-events-none z-1" />
+
+                      {/* Title overlay for center active element */}
+                      <AnimatePresence>
+                        {isActive && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 15 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -15 }}
+                            transition={{ duration: 0.35, delay: 0.2 }}
+                            className="absolute bottom-6 left-6 right-6 z-10 flex flex-col gap-1"
+                          >
+                            <span className="font-outfit text-[9px] font-bold tracking-[0.25em] text-brand-gold uppercase">
+                              {item.categoryLabel}
+                            </span>
+                            <h4 className="font-syne text-lg md:text-xl font-extrabold text-white uppercase leading-none tracking-wide">
+                              {item.title}
+                            </h4>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Navigation Arrows & Indicator controls */}
+              <div className="flex items-center gap-6 mt-12 z-20">
+                <button
+                  onClick={prevSlide}
+                  className="p-3.5 rounded-full border border-white/10 bg-white/5 text-white hover:bg-brand-gold hover:text-black hover:border-brand-gold transition-all duration-300 cursor-none"
+                  data-magnetic
+                  aria-label="Previous Slide"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </button>
+
+                {/* Horizontal Slider dot tags */}
+                <div className="flex items-center gap-2">
+                  {photoItems.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setCarouselIndex(idx)}
+                      className={cn(
+                        "h-1.5 rounded-full transition-all duration-500 cursor-none",
+                        idx === carouselIndex ? "w-8 bg-brand-gold" : "w-2 bg-white/20"
                       )}
-                    </div>
+                      aria-label={`Go to slide ${idx + 1}`}
+                    />
+                  ))}
+                </div>
 
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none z-10" />
+                <button
+                  onClick={nextSlide}
+                  className="p-3.5 rounded-full border border-white/10 bg-white/5 text-white hover:bg-brand-gold hover:text-black hover:border-brand-gold transition-all duration-300 cursor-none"
+                  data-magnetic
+                  aria-label="Next Slide"
+                >
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </div>
+            </motion.div>
+          )}
 
-                    <div className="relative z-20 pointer-events-none">
-                      <span className="font-outfit text-[9px] font-bold tracking-widest text-brand-gold uppercase block mb-1">
-                        {item.categoryLabel}
-                      </span>
-                      <h4 className="font-syne text-base font-bold text-white uppercase leading-tight">
-                        {item.title}
-                      </h4>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
-          </div>
-        </div>
-      )}
+        </AnimatePresence>
+      </div>
 
-      {/* Fullscreen Video/Image Lightbox */}
+      {/* Fullscreen Video/Image Details Lightbox */}
       <Lightbox
         isOpen={isLightboxOpen}
         onClose={() => setIsLightboxOpen(false)}
-        mediaType={selectedItem?.mediaType || "image"}
-        mediaUrl={selectedItem?.mediaUrl || ""}
-        title={selectedItem?.title || ""}
+        item={selectedItem}
       />
-
-      {/* SVG Liquid Displacement Map Filter */}
-      <svg className="hidden absolute w-0 h-0 pointer-events-none">
-        <defs>
-          <filter id="liquid-ripple-filter">
-            <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="3" result="noise" seed="1" />
-            <feDisplacementMap in="SourceGraphic" in2="noise" scale="0" xChannelSelector="R" yChannelSelector="G" id="displacement-map-node" />
-          </filter>
-        </defs>
-      </svg>
     </div>
   );
 }

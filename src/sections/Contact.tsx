@@ -268,7 +268,7 @@ export default function Contact() {
                     type="submit"
                     disabled={isPending}
                     className="w-full flex items-center justify-center gap-3 px-8 py-4 rounded-full bg-brand-gold hover:bg-white text-black font-outfit text-sm font-bold tracking-wider transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold disabled:opacity-50 disabled:cursor-not-allowed cursor-none group"
-                    data-cursor="hover"
+                    data-magnetic
                   >
                     {isPending ? "SENDING INQUIRY..." : "SEND INQUIRY"}
                     {!isPending && <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />}
@@ -299,7 +299,7 @@ export default function Contact() {
                   <button
                     onClick={handleReset}
                     className="flex items-center gap-2 px-6 py-3 rounded-full border border-white/10 hover:border-brand-gold bg-white/5 hover:bg-brand-gold/10 text-white hover:text-brand-gold font-outfit text-xs font-bold tracking-widest uppercase transition-colors cursor-none focus:outline-none"
-                    data-cursor="hover"
+                    data-magnetic
                   >
                     <RotateCcw className="h-4 w-4" />
                     Send Another Message

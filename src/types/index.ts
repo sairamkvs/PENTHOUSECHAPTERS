@@ -16,6 +16,10 @@ export interface PortfolioItem {
   mediaUrl: string; // Source URL (direct MP4, YouTube Embed, or high-res image)
   videoProvider?: "youtube" | "vimeo" | "direct";
   aspectRatio?: "video" | "square" | "portrait";
+  client?: string;
+  year?: string;
+  servicesProvided?: string[];
+  credits?: { director?: string; dop?: string; editor?: string };
 }
 
 export interface ProcessStep {

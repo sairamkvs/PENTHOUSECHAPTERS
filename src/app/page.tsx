@@ -15,10 +15,12 @@ import Contact from "@/sections/Contact";
 const CustomCursor = dynamic(() => import("@/components/CustomCursor"), { ssr: false });
 const Preloader = dynamic(() => import("@/components/Preloader"), { ssr: false });
 const AudioEngine = dynamic(() => import("@/components/AudioEngine"), { ssr: false });
+const FeaturedReel = dynamic(() => import("@/components/FeaturedReel"), { ssr: false });
 
 export default function Home() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [showPreloader, setShowPreloader] = useState(true);
+  const [showReel, setShowReel] = useState(false);
 
   return (
     <>
@@ -32,13 +34,23 @@ export default function Home() {
       {showPreloader && (
         <Preloader
           onComplete={() => {
-            setIsLoaded(true);
             setShowPreloader(false);
+            setShowReel(true);
           }}
         />
       )}
 
-      {/* Main page content reveals after loader completes */}
+      {/* Post-loader cinematic featured reel */}
+      {showReel && (
+        <FeaturedReel
+          onComplete={() => {
+            setIsLoaded(true);
+            setShowReel(false);
+          }}
+        />
+      )}
+
+      {/* Main page content reveals after loader and showreel complete */}
       <div
         className="transition-opacity duration-1000 ease-out"
         style={{ opacity: isLoaded ? 1 : 0 }}

@@ -147,21 +147,15 @@ export default function CustomCursor() {
     };
 
     const restoreCircleShape = (type: string) => {
+      const isInteractive = ["view", "play", "open", "discover", "drag", "scroll"].includes(type);
+
       // Revert from magnetic frame to standard circular cursor dimensions
       gsap.to(follower, {
-        width: type === "default" ? 32 : type === "hover" ? 56 : 80,
-        height: type === "default" ? 32 : type === "hover" ? 56 : 80,
+        width: type === "default" ? 32 : type === "hover" ? 56 : 90,
+        height: type === "default" ? 32 : type === "hover" ? 56 : 90,
         borderRadius: "50%",
-        borderColor:
-          type === "view" || type === "play"
-            ? "#E5A919"
-            : type === "hover"
-            ? "#E5A919"
-            : "rgba(229, 169, 25, 0.3)",
-        backgroundColor:
-          type === "view" || type === "play"
-            ? "rgba(229, 169, 25, 0.15)"
-            : "transparent",
+        borderColor: isInteractive || type === "hover" ? "#E5A919" : "rgba(229, 169, 25, 0.3)",
+        backgroundColor: isInteractive ? "rgba(229, 169, 25, 0.12)" : "transparent",
         duration: 0.3,
         ease: "power2.out",
         overwrite: "auto"
@@ -193,28 +187,43 @@ export default function CustomCursor() {
 
   if (!isVisible) return null;
 
+  const isInteractiveState = ["view", "play", "open", "discover", "drag", "scroll"].includes(cursorType);
+
   return (
     <div className="pointer-events-none fixed inset-0 z-[9999] hidden md:block">
-      {/* Precision Core Dot (Vibrant Gold/Yellow with Glow) */}
+      {/* Precision Core Dot (Hidden to let default system cursor show) */}
       <div
         ref={cursorRef}
-        className="fixed left-0 top-0 h-2 w-2 rounded-full bg-brand-gold shadow-[0_0_8px_rgba(229,169,25,0.6)] transition-transform duration-300"
-        style={{
-          transform: snappedElRef.current ? "scale(0)" : "scale(1)",
-        }}
+        className="hidden"
       />
 
       {/* Lagging Guide Ring (Vibrant Gold/Yellow outline) */}
       <div
         ref={followerRef}
-        className="fixed left-0 top-0 flex items-center justify-center rounded-full border border-brand-gold/30 shadow-[0_0_12px_rgba(229,169,25,0.1)] transition-all duration-300"
+        className="fixed left-0 top-0 flex flex-col items-center justify-center rounded-full border border-brand-gold/30 shadow-[0_0_12px_rgba(229,169,25,0.1)] transition-all duration-300 gap-1.5"
       >
-        {(cursorType === "view" || cursorType === "play") && !snappedElRef.current && (
-          <span className="font-outfit text-[10px] font-bold tracking-widest text-brand-gold uppercase select-none">
-            {cursorType}
-          </span>
+        {isInteractiveState && !snappedElRef.current && (
+          <>
+            {/* Elegant SVG "M" Logo (Vibrant Gold) */}
+            <svg
+              className="h-3.5 w-3.5 fill-brand-gold drop-shadow-[0_0_3px_rgba(229,169,25,0.4)] animate-[fadeInShort_0.3s_ease-out]"
+              viewBox="0 0 24 24"
+            >
+              <path d="M3 20V4l9 8 9-8v16h-3V8.5l-6 5.3-6-5.3V20H3z" />
+            </svg>
+            <span className="font-outfit text-[9px] font-bold tracking-[0.2em] text-brand-gold uppercase select-none leading-none animate-[fadeInShort_0.35s_ease-out]">
+              {cursorType}
+            </span>
+          </>
         )}
       </div>
+
+      <style jsx global>{`
+        @keyframes fadeInShort {
+          from { opacity: 0; transform: scale(0.85); }
+          to { opacity: 1; transform: scale(1); }
+        }
+      `}</style>
     </div>
   );
 }

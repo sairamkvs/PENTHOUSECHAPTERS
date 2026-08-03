@@ -130,10 +130,4 @@ body {
   box-shadow: 0 8px 32px 0 rgba(229, 169, 25, 0.05);
 }
 
-/* Hide default cursor on desktop when custom cursor is active */
-@media (hover: hover) and (pointer: fine) {
-  .custom-cursor-active,
-  .custom-cursor-active * {
-    cursor: none !important;
-  }
-}
+

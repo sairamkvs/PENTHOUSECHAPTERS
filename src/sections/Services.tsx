@@ -14,6 +14,8 @@ gsap.registerPlugin(ScrollTrigger);
 export default function Services() {
   // Mobile accordion state
   const [activeAccordion, setActiveAccordion] = useState<string | null>("commercial-films");
+  const [hoveredServiceId, setHoveredServiceId] = useState<string | null>(null);
+  
   const desktopContainerRef = useRef<HTMLDivElement>(null);
   const desktopTrackRef = useRef<HTMLDivElement>(null);
 
@@ -92,6 +94,19 @@ export default function Services() {
     setActiveAccordion((prev) => (prev === id ? null : id));
   };
 
+  const getBgLightingClass = () => {
+    if (hoveredServiceId === "commercial-films") return "top-[10%] left-[20%] bg-brand-gold/10";
+    if (hoveredServiceId === "corporate-films") return "top-[40%] left-[30%] bg-amber-500/10";
+    if (hoveredServiceId === "brand-films") return "top-[20%] left-[50%] bg-purple-900/10";
+    if (hoveredServiceId === "product-films") return "top-[50%] left-[40%] bg-blue-900/10";
+    if (hoveredServiceId === "social-media") return "top-[10%] left-[60%] bg-red-900/10";
+    if (hoveredServiceId === "photography") return "top-[60%] left-[20%] bg-amber-600/10";
+    if (hoveredServiceId === "immersive") return "top-[30%] left-[70%] bg-emerald-900/10";
+    if (hoveredServiceId === "aerial") return "top-[20%] left-[40%] bg-teal-900/10";
+    if (hoveredServiceId === "post") return "top-[50%] left-[80%] bg-brand-gold/10";
+    return "top-1/4 right-0 bg-brand-gold/5";
+  };
+
   return (
     <>
       {/* ========================================== */}
@@ -101,9 +116,10 @@ export default function Services() {
         ref={desktopContainerRef}
         id="services-desktop"
         className="relative hidden lg:block h-screen bg-brand-black overflow-hidden select-none"
+        data-cursor="scroll"
       >
         {/* Background ambient lighting */}
-        <div className="absolute top-1/4 right-0 h-[450px] w-[450px] rounded-full bg-brand-gold/5 blur-[130px] pointer-events-none z-0" />
+        <div className={cn("absolute h-[500px] w-[500px] rounded-full blur-[130px] pointer-events-none z-0 transition-all duration-1000 ease-out", getBgLightingClass())} />
 
         <div ref={desktopTrackRef} className="flex h-full w-max flex-row items-center relative z-10">
           
@@ -133,22 +149,33 @@ export default function Services() {
           </div>
 
           {/* Panels 1-9: Services Panels */}
-          {SERVICES_DATA.map((service, idx) => (
-            <div
-              key={service.id}
-              className="service-horizontal-panel w-screen h-screen flex items-center justify-between px-24 shrink-0 border-r border-white/5 bg-brand-black"
-            >
-              <div className="grid grid-cols-12 gap-16 items-center w-full">
-                
-                {/* Left Side: Copy */}
-                <div className="col-span-5 service-horizontal-text">
-                  <div className="font-outfit text-5xl xl:text-6xl font-extrabold text-brand-gold/20 tracking-wider mb-4">
-                    {(idx + 1).toString().padStart(2, "0")}
-                  </div>
+          {SERVICES_DATA.map((service, idx) => {
+            const isHovered = hoveredServiceId === service.id;
+
+            return (
+              <div
+                key={service.id}
+                onMouseEnter={() => setHoveredServiceId(service.id)}
+                onMouseLeave={() => setHoveredServiceId(null)}
+                className="service-horizontal-panel w-screen h-screen flex items-center justify-between px-24 shrink-0 border-r border-white/5 bg-brand-black"
+              >
+                <div className="grid grid-cols-12 gap-16 items-center w-full">
                   
-                  <h4 className="font-syne text-3xl xl:text-4xl font-extrabold text-white uppercase mb-6 tracking-wide">
-                    {service.title}
-                  </h4>
+                  {/* Left Side: Copy */}
+                  <div className="col-span-5 service-horizontal-text">
+                    <div className={cn(
+                      "font-outfit text-5xl xl:text-6xl font-extrabold tracking-wider mb-4 transition-all duration-500",
+                      isHovered ? "text-brand-gold drop-shadow-[0_0_15px_rgba(229,169,25,0.5)]" : "text-brand-gold/20"
+                    )}>
+                      {(idx + 1).toString().padStart(2, "0")}
+                    </div>
+                    
+                    <h4 className={cn(
+                      "font-syne text-3xl xl:text-4xl font-extrabold uppercase mb-6 tracking-wide transition-all duration-500",
+                      isHovered ? "text-brand-gold translate-x-2" : "text-white"
+                    )}>
+                      {service.title}
+                    </h4>
                   
                   <p className="font-inter text-sm xl:text-base text-brand-muted leading-relaxed mb-8 max-w-md whitespace-normal">
                     {service.description}
@@ -193,7 +220,8 @@ export default function Services() {
 
               </div>
             </div>
-          ))}
+          );
+        })}
 
         </div>
       </section>

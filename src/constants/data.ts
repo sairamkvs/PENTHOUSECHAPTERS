@@ -118,7 +118,11 @@ export const PORTFOLIO_DATA: PortfolioItem[] = [
     mediaType: "video",
     mediaUrl: "https://assets.mixkit.co/videos/preview/mixkit-pouring-hot-coffee-into-a-cup-41703-large.mp4",
     videoProvider: "direct",
-    aspectRatio: "video"
+    aspectRatio: "video",
+    client: "Roasters Guild",
+    year: "2025",
+    servicesProvided: ["Director of Photography", "Color Grading", "Post Production"],
+    credits: { director: "Vikram Sen", dop: "Sajid Khan", editor: "Meera Nair" }
   },
   {
     id: "port-2",
@@ -128,7 +132,11 @@ export const PORTFOLIO_DATA: PortfolioItem[] = [
     description: "High-contrast architectural study focusing on minimalism, shadows, and clean raw materials.",
     mediaType: "image",
     mediaUrl: "https://images.pexels.com/photos/100582/pexels-photo-100582.jpeg?auto=compress&cs=tinysrgb&w=1200",
-    aspectRatio: "square"
+    aspectRatio: "square",
+    client: "Arch-Design Magazine",
+    year: "2026",
+    servicesProvided: ["Creative Direction", "Architectural Photography"],
+    credits: { director: "Vikram Sen", dop: "Amit Kumar", editor: "Vikram Sen" }
   },
   {
     id: "port-3",
@@ -139,7 +147,11 @@ export const PORTFOLIO_DATA: PortfolioItem[] = [
     mediaType: "video",
     mediaUrl: "https://assets.mixkit.co/videos/preview/mixkit-business-people-meeting-around-a-table-41662-large.mp4",
     videoProvider: "direct",
-    aspectRatio: "video"
+    aspectRatio: "video",
+    client: "Vanguard Tech Inc",
+    year: "2025",
+    servicesProvided: ["Live Multi-Cam Coverage", "Motion Titles", "Highlight Reel Production"],
+    credits: { director: "Rohan Das", dop: "Ramesh Sharma", editor: "Preeti Sahay" }
   },
   {
     id: "port-4",
@@ -150,7 +162,11 @@ export const PORTFOLIO_DATA: PortfolioItem[] = [
     mediaType: "video",
     mediaUrl: "https://assets.mixkit.co/videos/preview/mixkit-pov-shot-inside-a-modern-apartment-41624-large.mp4",
     videoProvider: "direct",
-    aspectRatio: "portrait"
+    aspectRatio: "portrait",
+    client: "Glasshouse Developments",
+    year: "2025",
+    servicesProvided: ["Immersive 360 Video Capture", "Spatial Experience Design", "Aerial Inspection"],
+    credits: { director: "Elena Rostova", dop: "Suresh Babu", editor: "Elena Rostova" }
   },
   {
     id: "port-5",
@@ -161,7 +177,11 @@ export const PORTFOLIO_DATA: PortfolioItem[] = [
     mediaType: "video",
     mediaUrl: "https://assets.mixkit.co/videos/preview/mixkit-drone-view-of-a-coastal-city-and-sea-41707-large.mp4",
     videoProvider: "direct",
-    aspectRatio: "video"
+    aspectRatio: "video",
+    client: "Blue Horizon Tourism",
+    year: "2026",
+    servicesProvided: ["Drone Operations", "Landscape Cinematography", "4K Color Grade"],
+    credits: { director: "Kartik Ayyar", dop: "Siddharth Nair", editor: "Kartik Ayyar" }
   },
   {
     id: "port-6",
@@ -171,7 +191,11 @@ export const PORTFOLIO_DATA: PortfolioItem[] = [
     description: "A lifestyle series focusing on urban fashion and play of streetlights during golden hour in Paris.",
     mediaType: "image",
     mediaUrl: "https://images.pexels.com/photos/2589653/pexels-photo-2589653.jpeg?auto=compress&cs=tinysrgb&w=1200",
-    aspectRatio: "portrait"
+    aspectRatio: "portrait",
+    client: "Luxe Couture",
+    year: "2026",
+    servicesProvided: ["Golden Hour Portraiture", "Editorial Styling"],
+    credits: { director: "Zara Hadid", dop: "Zara Hadid", editor: "Zara Hadid" }
   },
   {
     id: "port-7",
@@ -182,7 +206,11 @@ export const PORTFOLIO_DATA: PortfolioItem[] = [
     mediaType: "video",
     mediaUrl: "https://assets.mixkit.co/videos/preview/mixkit-editor-working-on-a-video-editing-software-41680-large.mp4",
     videoProvider: "direct",
-    aspectRatio: "video"
+    aspectRatio: "video",
+    client: "PIXMONK Showreel",
+    year: "2026",
+    servicesProvided: ["Color Correcting", "Multi-layered compositing", "VFX Transformations"],
+    credits: { director: "PIXMONK Studio", dop: "Various Contributors", editor: "Anish Patel" }
   },
   {
     id: "port-8",
@@ -192,7 +220,11 @@ export const PORTFOLIO_DATA: PortfolioItem[] = [
     description: "Interactive marketing visuals created for a five-star presidential suite resort, boosting bookings by 40%.",
     mediaType: "image",
     mediaUrl: "https://images.pexels.com/photos/2724749/pexels-photo-2724749.jpeg?auto=compress&cs=tinysrgb&w=1200",
-    aspectRatio: "square"
+    aspectRatio: "square",
+    client: "Presidential Suites Resort",
+    year: "2025",
+    servicesProvided: ["360 Photography Stills", "Virtual Tour Orchestration"],
+    credits: { director: "Neha Roy", dop: "Neha Roy", editor: "Neha Roy" }
   }
 ];
 
