@@ -1,6 +1,6 @@
 import { ServiceItem, PortfolioItem, ProcessStep } from "@/types";
 
-export const BRAND_NAME = "PIXMONK PRODUCTIONS";
+export const BRAND_NAME = "PENTHOUSE CHAPTERS";
 export const BRAND_TAGLINE = "Where Vision Becomes Visual";
 export const BRAND_MISSION = "Bridging brands with people through strategic visual storytelling.";
 
@@ -207,10 +207,10 @@ export const PORTFOLIO_DATA: PortfolioItem[] = [
     mediaUrl: "https://assets.mixkit.co/videos/preview/mixkit-editor-working-on-a-video-editing-software-41680-large.mp4",
     videoProvider: "direct",
     aspectRatio: "video",
-    client: "PIXMONK Showreel",
+    client: "Penthouse Chapters Showreel",
     year: "2026",
     servicesProvided: ["Color Correcting", "Multi-layered compositing", "VFX Transformations"],
-    credits: { director: "PIXMONK Studio", dop: "Various Contributors", editor: "Anish Patel" }
+    credits: { director: "Penthouse Chapters Studio", dop: "Various Contributors", editor: "Anish Patel" }
   },
   {
     id: "port-8",
@@ -241,9 +241,9 @@ export const BRANDS_DATA = [
 
 export const CONTACT_INFO = {
   phone: "+91 98765 43210",
-  email: "hello@pixmonkproductions.com",
+  email: "hello@penthousechapters.com",
   whatsapp: "https://wa.me/919876543210",
-  instagram: "https://instagram.com/pixmonkproductions",
-  linkedin: "https://linkedin.com/company/pixmonkproductions",
+  instagram: "https://instagram.com/penthousechapters",
+  linkedin: "https://linkedin.com/company/penthousechapters",
   address: "Studio 4A, Creative Hub, Sector 5, Bangalore, India"
 };

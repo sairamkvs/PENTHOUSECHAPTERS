@@ -85,15 +85,15 @@ export default function Home() {
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex flex-col items-center md:items-start text-center md:text-left">
               <span className="font-syne text-lg font-bold tracking-[0.2em] text-white">
-                PIXMONK
+                PENTHOUSE
               </span>
               <span className="text-[8px] font-medium tracking-[0.45em] text-brand-muted uppercase -mt-0.5">
-                PRODUCTIONS
+                CHAPTERS
               </span>
             </div>
 
             <p className="font-outfit text-xs text-brand-muted/70 tracking-widest text-center">
-              © {new Date().getFullYear()} PIXMONK PRODUCTIONS. ALL RIGHTS RESERVED.
+              © {new Date().getFullYear()} PENTHOUSE CHAPTERS. ALL RIGHTS RESERVED.
             </p>
 
             <a

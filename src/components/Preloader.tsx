@@ -11,8 +11,24 @@ interface PreloaderProps {
 export default function Preloader({ onComplete }: PreloaderProps) {
   const [progress, setProgress] = useState(0);
   const [activeWord, setActiveWord] = useState("VISION");
-  const [isMuted, setIsMuted] = useState(true);
+  const [isAudioActive, setIsAudioActive] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const handleSoundState = (e: any) => {
+      setIsAudioActive(e.detail.active);
+      if (videoRef.current) {
+        videoRef.current.muted = !e.detail.active;
+      }
+    };
+
+    window.addEventListener("cinematic-sound-state", handleSoundState as any);
+    return () => window.removeEventListener("cinematic-sound-state", handleSoundState as any);
+  }, []);
+
+  const toggleSound = () => {
+    window.dispatchEvent(new CustomEvent("toggle-cinematic-sound"));
+  };
 
   useEffect(() => {
     // Lock page scroll
@@ -90,13 +106,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     };
   }, [onComplete]);
 
-  // Attempt unmuting
-  const toggleMute = () => {
-    if (videoRef.current) {
-      videoRef.current.muted = !isMuted;
-      setIsMuted(!isMuted);
-    }
-  };
+
 
   return (
     <div className="preloader-wrap fixed inset-0 z-[9999] flex flex-col items-center justify-center pointer-events-auto">
@@ -121,7 +131,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
           src="/Logo Reveal.mov"
           autoPlay
           loop
-          muted={isMuted}
+          muted={!isAudioActive}
           playsInline
           className="w-full h-full object-cover opacity-25"
         />
@@ -137,18 +147,18 @@ export default function Preloader({ onComplete }: PreloaderProps) {
 
       {/* Sound Controller Button */}
       <button
-        onClick={toggleMute}
+        onClick={toggleSound}
         className="absolute top-6 right-6 z-20 flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-brand-black/40 hover:bg-brand-black/75 text-white/90 hover:text-brand-gold transition-all font-outfit text-xs font-semibold tracking-wider cursor-none backdrop-blur-md"
         data-cursor="hover"
       >
-        {isMuted ? (
+        {isAudioActive ? (
           <>
-            <VolumeX className="h-3.5 w-3.5" />
+            <Volume2 className="h-3.5 w-3.5 text-brand-gold animate-pulse" />
             SOUND ON
           </>
         ) : (
           <>
-            <Volume2 className="h-3.5 w-3.5 animate-pulse" />
+            <VolumeX className="h-3.5 w-3.5" />
             SOUND OFF
           </>
         )}
@@ -159,13 +169,13 @@ export default function Preloader({ onComplete }: PreloaderProps) {
         {/* Animated Brand Logo */}
         <div className="mb-4 overflow-hidden h-14 flex items-center justify-center">
           <span className="text-4xl font-extrabold tracking-[0.25em] font-syne text-brand-gold preloader-animate">
-            PIXMONK
+            PENTHOUSE
           </span>
         </div>
 
         <div className="mb-8 overflow-hidden h-6 flex items-center justify-center">
           <span className="text-xs font-medium tracking-[0.5em] text-brand-muted/70 preloader-animate uppercase">
-            PRODUCTIONS
+            CHAPTERS
           </span>
         </div>
 

@@ -78,10 +78,10 @@ export default function Navbar() {
             }}
           >
             <span className="font-syne text-xl md:text-2xl font-extrabold tracking-[0.2em] text-brand-gold">
-              PIXMONK
+              PENTHOUSE
             </span>
             <span className="text-[9px] font-medium tracking-[0.45em] text-brand-muted uppercase -mt-0.5">
-              PRODUCTIONS
+              CHAPTERS
             </span>
           </a>
 

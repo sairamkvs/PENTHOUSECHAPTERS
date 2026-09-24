@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 export default function AudioEngine() {
   const [isPlaying, setIsPlaying] = useState(false);
+  const isPlayingRef = useRef(false);
   
   const audioCtxRef = useRef<AudioContext | null>(null);
   const mainGainRef = useRef<GainNode | null>(null);
@@ -23,36 +24,38 @@ export default function AudioEngine() {
 
     try {
       const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContextClass) return;
+
       const ctx = new AudioContextClass();
       audioCtxRef.current = ctx;
 
-      // Main Gain Node
+      // Main Gain Node - start at 0
       const mainGain = ctx.createGain();
       mainGain.gain.setValueAtTime(0, ctx.currentTime);
       mainGain.connect(ctx.destination);
       mainGainRef.current = mainGain;
 
-      // Biquad Lowpass Filter to keep it warm and ambient
+      // Biquad Lowpass Filter for warm ambient sound
       const filter = ctx.createBiquadFilter();
       filter.type = "lowpass";
-      filter.Q.setValueAtTime(4, ctx.currentTime);
+      filter.Q.setValueAtTime(3, ctx.currentTime);
       filter.frequency.setValueAtTime(180, ctx.currentTime);
       filter.connect(mainGain);
       filterRef.current = filter;
 
-      // Synth Drone Oscillators (A1, A2, E3 forming a fifth chord)
-      const frequencies = [55, 110, 165]; // A1, A2, E3
+      // Synth Drone Oscillators (A1=55Hz, A2=110Hz, E3=165Hz forming a fifth chord)
+      const frequencies = [55, 110, 165];
       const oscTypes: OscillatorType[] = ["sine", "sawtooth", "triangle"];
-      const gains = [0.4, 0.15, 0.25];
+      const gains = [0.35, 0.12, 0.2];
 
       frequencies.forEach((freq, index) => {
         const osc = ctx.createOscillator();
         osc.type = oscTypes[index];
         osc.frequency.setValueAtTime(freq, ctx.currentTime);
         
-        // Detune sawtooth and triangle slightly for a lush chorus effect
+        // Detune for chorus effect
         if (index > 0) {
-          osc.detune.setValueAtTime((index === 1 ? -12 : 12), ctx.currentTime);
+          osc.detune.setValueAtTime((index === 1 ? -10 : 10), ctx.currentTime);
         }
 
         const oscGain = ctx.createGain();
@@ -65,18 +68,16 @@ export default function AudioEngine() {
         osc.start();
       });
 
-      // LFO to slowly modulate the filter cutoff for a breathing effect
+      // LFO to slowly modulate the filter cutoff (breathing effect)
       const lfo = ctx.createOscillator();
       lfo.type = "sine";
-      lfo.frequency.setValueAtTime(0.08, ctx.currentTime); // very slow 12 seconds per cycle
+      lfo.frequency.setValueAtTime(0.08, ctx.currentTime);
 
       const lfoGain = ctx.createGain();
-      lfoGain.gain.setValueAtTime(35, ctx.currentTime); // +/- 35Hz modulation
+      lfoGain.gain.setValueAtTime(30, ctx.currentTime);
 
       lfo.connect(lfoGain);
-      if (filter.frequency) {
-        lfoGain.connect(filter.frequency);
-      }
+      lfoGain.connect(filter.frequency);
       lfo.start();
       lfoRef.current = lfo;
 
@@ -88,7 +89,7 @@ export default function AudioEngine() {
   // Play micro hover sound (soft lowpass tick)
   const playHoverSound = () => {
     const ctx = audioCtxRef.current;
-    if (!ctx || !isPlaying || ctx.state === "suspended") return;
+    if (!ctx || !isPlayingRef.current || ctx.state !== "running") return;
 
     try {
       const osc = ctx.createOscillator();
@@ -120,7 +121,7 @@ export default function AudioEngine() {
   // Play micro click sound (low bass pulse)
   const playClickSound = () => {
     const ctx = audioCtxRef.current;
-    if (!ctx || !isPlaying || ctx.state === "suspended") return;
+    if (!ctx || !isPlayingRef.current || ctx.state !== "running") return;
 
     try {
       const osc = ctx.createOscillator();
@@ -130,7 +131,7 @@ export default function AudioEngine() {
       osc.frequency.setValueAtTime(90, ctx.currentTime);
       osc.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.2);
 
-      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.setValueAtTime(0.25, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
 
       osc.connect(gain);
@@ -144,49 +145,54 @@ export default function AudioEngine() {
   };
 
   // Trigger sound engine state toggle
-  const toggleSound = () => {
+  const toggleSound = async () => {
     initAudio();
     const ctx = audioCtxRef.current;
     const mainGain = mainGainRef.current;
     if (!ctx || !mainGain) return;
 
-    if (isPlaying) {
+    if (isPlayingRef.current) {
       // Fade out volume
+      mainGain.gain.cancelScheduledValues(ctx.currentTime);
       mainGain.gain.setValueAtTime(mainGain.gain.value, ctx.currentTime);
-      mainGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.6);
+      mainGain.gain.linearRampToValueAtTime(0.0001, ctx.currentTime + 0.4);
       
       setTimeout(() => {
-        if (ctx.state === "running") {
+        if (ctx.state === "running" && !isPlayingRef.current) {
           ctx.suspend();
         }
-      }, 650);
+      }, 450);
 
+      isPlayingRef.current = false;
       setIsPlaying(false);
       window.dispatchEvent(new CustomEvent("cinematic-sound-state", { detail: { active: false } }));
     } else {
-      // Resume context
+      // Resume context if suspended
       if (ctx.state === "suspended") {
-        ctx.resume();
+        await ctx.resume();
       }
 
-      // Fade in volume to 0.45
-      mainGain.gain.setValueAtTime(mainGain.gain.value, ctx.currentTime);
-      mainGain.gain.linearRampToValueAtTime(0.45, ctx.currentTime + 1.2);
+      // Fade in volume to 0.35
+      const currentVal = Math.max(mainGain.gain.value, 0.0001);
+      mainGain.gain.cancelScheduledValues(ctx.currentTime);
+      mainGain.gain.setValueAtTime(currentVal, ctx.currentTime);
+      mainGain.gain.linearRampToValueAtTime(0.35, ctx.currentTime + 0.8);
       
+      isPlayingRef.current = true;
       setIsPlaying(true);
       window.dispatchEvent(new CustomEvent("cinematic-sound-state", { detail: { active: true } }));
     }
   };
 
   useEffect(() => {
-    // 1. Listen to Navbar toggle trigger
+    // 1. Listen to toggle trigger
     const handleToggleRequest = () => {
       toggleSound();
     };
 
     window.addEventListener("toggle-cinematic-sound" as any, handleToggleRequest);
 
-    // 2. Track scroll to open up filter cutoff frequency
+    // 2. Track scroll to modulate filter cutoff frequency
     let lastScrollY = window.scrollY;
     let scrollTimeout: NodeJS.Timeout;
 
@@ -195,26 +201,22 @@ export default function AudioEngine() {
       const speed = Math.abs(currentScrollY - lastScrollY);
       lastScrollY = currentScrollY;
 
-      // Increase filter cutoff based on scroll intensity
-      const boost = Math.min(speed * 3.5, 450); // up to +450Hz
+      const boost = Math.min(speed * 3.5, 450);
       targetFilterFreq.current = 180 + boost;
 
       clearTimeout(scrollTimeout);
       scrollTimeout = setTimeout(() => {
-        // Return to warm low drone when scrolling halts
         targetFilterFreq.current = 180;
       }, 100);
     };
 
     window.addEventListener("scroll", handleScroll);
 
-    // Smoothly animate the filter frequency using a simple dampening loop
+    // Smoothly animate filter frequency
     let animFrame: number;
     const updateFilterFreq = () => {
       if (filterRef.current && audioCtxRef.current) {
-        // Interpolate current frequency towards target
         currentFilterFreq.current += (targetFilterFreq.current - currentFilterFreq.current) * 0.08;
-        
         try {
           filterRef.current.frequency.setValueAtTime(currentFilterFreq.current, audioCtxRef.current.currentTime);
         } catch(e) {}
@@ -223,7 +225,7 @@ export default function AudioEngine() {
     };
     updateFilterFreq();
 
-    // 3. Bind global event listeners for micro sound effects (hover/clicks)
+    // 3. Bind global micro sound triggers
     const handleGlobalClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       if (!target) return;
@@ -235,9 +237,7 @@ export default function AudioEngine() {
     const handleGlobalMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       if (!target) return;
-      // Only play hover sounds for interactive links or buttons
       if (target.closest("a") || target.closest("button") || target.closest("[data-cursor]")) {
-        // Debounce or verify it's a new element hover
         const interactiveEl = target.closest("a, button, [data-cursor]");
         if (interactiveEl && (interactiveEl as any)._lastHovered !== true) {
           (interactiveEl as any)._lastHovered = true;
@@ -259,15 +259,18 @@ export default function AudioEngine() {
       window.removeEventListener("click", handleGlobalClick);
       window.removeEventListener("mouseover", handleGlobalMouseOver);
       
-      // Stop oscillators on unmount
+      // Cleanup audio nodes only when component completely unmounts
       oscsRef.current.forEach(osc => {
         try { osc.stop(); } catch(e) {}
       });
       if (lfoRef.current) {
         try { lfoRef.current.stop(); } catch(e) {}
       }
+      if (audioCtxRef.current) {
+        try { audioCtxRef.current.close(); } catch(e) {}
+      }
     };
-  }, [isPlaying]);
+  }, []);
 
   return null;
 }

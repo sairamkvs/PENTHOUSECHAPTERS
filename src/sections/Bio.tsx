@@ -74,7 +74,7 @@ export default function Bio() {
         <div className="flex items-center gap-3 mb-8">
           <span className="h-[1px] w-8 bg-brand-gold" />
           <h2 className="font-outfit text-xs font-bold tracking-[0.3em] text-brand-gold uppercase">
-            ABOUT PIXMONK
+            ABOUT PENTHOUSE CHAPTERS
           </h2>
         </div>
 

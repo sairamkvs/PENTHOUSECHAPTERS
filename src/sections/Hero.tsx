@@ -23,22 +23,23 @@ export default function Hero({ isLoaded = false }: HeroProps) {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
-  // Programmatically unmute background video once preloader finishes and mounts
+  // Control video audio via global sound toggle
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    // Direct browser unlock attempt
-    video.muted = false;
-    const playPromise = video.play();
-    if (playPromise !== undefined) {
-      playPromise.catch(() => {
-        // Fallback to muted autoplay if browser blocks audio
+    const handleSoundState = (e: any) => {
+      const video = videoRef.current;
+      if (!video) return;
+      if (e.detail.active) {
+        video.muted = false;
+        video.volume = 0.8;
+        video.play().catch(() => {});
+      } else {
         video.muted = true;
-        video.play();
-      });
-    }
-  }, [isLoaded]);
+      }
+    };
+
+    window.addEventListener("cinematic-sound-state", handleSoundState as any);
+    return () => window.removeEventListener("cinematic-sound-state", handleSoundState as any);
+  }, []);
 
   const springConfig = { damping: 40, stiffness: 200, mass: 1 };
   const gridX = useSpring(mouseX, springConfig);

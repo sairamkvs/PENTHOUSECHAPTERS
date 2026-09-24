@@ -20,9 +20,21 @@ export default function FeaturedReel({ onComplete }: FeaturedReelProps) {
 
     const video = videoRef.current;
     if (video) {
-      // Unmute/mute logic: keep it muted to bypass browser autoplay blocks
       video.muted = true;
       video.play().catch((err) => console.log("Reel autoplay blocked: ", err));
+
+      const handleSoundState = (e: any) => {
+        if (!video) return;
+        if (e.detail.active) {
+          video.muted = false;
+          video.volume = 0.8;
+          video.play().catch(() => {});
+        } else {
+          video.muted = true;
+        }
+      };
+
+      window.addEventListener("cinematic-sound-state", handleSoundState as any);
 
       const updateProgress = () => {
         if (video.duration) {
@@ -40,6 +52,7 @@ export default function FeaturedReel({ onComplete }: FeaturedReelProps) {
       video.addEventListener("ended", handleSkip);
 
       return () => {
+        window.removeEventListener("cinematic-sound-state", handleSoundState as any);
         video.removeEventListener("timeupdate", updateProgress);
         video.removeEventListener("ended", handleSkip);
         clearTimeout(autoSkipTimer);

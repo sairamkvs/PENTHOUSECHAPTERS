@@ -25,10 +25,11 @@ const inter = Inter({
 
 // Premium SEO Metadata
 export const metadata: Metadata = {
-  title: "PIXMONK PRODUCTIONS | Creative Content Agency & Cinematic Storytelling",
+  title: "PENTHOUSE CHAPTERS | Creative Content Agency & Cinematic Storytelling",
   description:
-    "PIXMONK PRODUCTIONS is a premium creative agency crafting visual stories that grow brands. Specializing in commercial & corporate films, professional photography, aerial cinematography, and 360° virtual experiences.",
+    "PENTHOUSE CHAPTERS is a premium creative agency crafting visual stories that grow brands. Specializing in commercial & corporate films, professional photography, aerial cinematography, and 360° virtual experiences.",
   keywords: [
+    "penthouse chapters",
     "video production Bangalore",
     "commercial films",
     "brand storytelling",
@@ -39,22 +40,22 @@ export const metadata: Metadata = {
     "corporate films",
     "post production",
   ],
-  metadataBase: new URL("https://www.pixmonkproductions.com"),
+  metadataBase: new URL("https://www.penthousechapters.com"),
   alternates: {
     canonical: "/",
   },
   openGraph: {
-    title: "PIXMONK PRODUCTIONS | Cinematic Storytelling & Content Agency",
+    title: "PENTHOUSE CHAPTERS | Cinematic Storytelling & Content Agency",
     description:
       "Crafting visual stories that grow brands. High-end commercials, corporate profiles, photography, and 360° virtual tours.",
-    url: "https://www.pixmonkproductions.com",
-    siteName: "PIXMONK PRODUCTIONS",
+    url: "https://www.penthousechapters.com",
+    siteName: "PENTHOUSE CHAPTERS",
     locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "PIXMONK PRODUCTIONS | Content Agency",
+    title: "PENTHOUSE CHAPTERS | Content Agency",
     description: "Bridging brands with people through strategic visual storytelling.",
   },
   robots: {
@@ -72,11 +73,11 @@ export default function RootLayout({
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "PIXMONK PRODUCTIONS",
-    "url": "https://www.pixmonkproductions.com",
-    "logo": "https://www.pixmonkproductions.com/logo.png",
+    "name": "PENTHOUSE CHAPTERS",
+    "url": "https://www.penthousechapters.com",
+    "logo": "https://www.penthousechapters.com/logo.png",
     "description":
-      "PIXMONK PRODUCTIONS is a premium creative agency crafting visual stories that grow brands. Specializing in commercial & corporate films, photography, aerial cinematography, and 360° virtual experiences.",
+      "PENTHOUSE CHAPTERS is a premium creative agency crafting visual stories that grow brands. Specializing in commercial & corporate films, photography, aerial cinematography, and 360° virtual experiences.",
     "address": {
       "@type": "PostalAddress",
       "streetAddress": "Studio 4A, Creative Hub, Sector 5",
@@ -89,11 +90,11 @@ export default function RootLayout({
       "@type": "ContactPoint",
       "telephone": "+91-98765-43210",
       "contactType": "sales",
-      "email": "hello@pixmonkproductions.com",
+      "email": "hello@penthousechapters.com",
     },
     "sameAs": [
-      "https://instagram.com/pixmonkproductions",
-      "https://linkedin.com/company/pixmonkproductions",
+      "https://instagram.com/penthousechapters",
+      "https://linkedin.com/company/penthousechapters",
     ],
   };
 
