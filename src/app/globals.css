@@ -2,10 +2,11 @@
 
 @theme {
   --color-brand-gold: #E5A919;
-  --color-brand-black: #060606;
-  --color-brand-dark: #0c0c0e;
-  --color-brand-gray: #17171d;
-  --color-brand-muted: #888899;
+  --color-brand-black: #060b08;
+  --color-brand-dark: #09120c;
+  --color-brand-gray: #121f15;
+  --color-brand-muted: #8ca391;
+  --color-brand-green: #112417;
 
   --font-outfit: var(--font-outfit), sans-serif;
   --font-syne: var(--font-syne), sans-serif;
@@ -36,8 +37,18 @@
 }
 
 :root {
-  --background: #060606;
+  --background: #060b08;
   --foreground: #ffffff;
+}
+
+/* Custom Cursor Hiding on Desktop */
+@media (min-width: 768px) {
+  html.custom-cursor-active,
+  html.custom-cursor-active *,
+  body.custom-cursor-active,
+  body.custom-cursor-active * {
+    cursor: none !important;
+  }
 }
 
 /* Lenis Smooth Scroll Configuration */
@@ -61,11 +72,11 @@ html.lenis-smooth {
 }
 
 ::-webkit-scrollbar-track {
-  background: #060606;
+  background: #060b08;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #222;
+  background: #14261a;
   border-radius: 4px;
 }
 
@@ -73,9 +84,15 @@ html.lenis-smooth {
   background: #E5A919;
 }
 
-/* General Base Styles */
+/* General Base Styles - Rich Dark Forest Green Textured Gradient */
 body {
-  background-color: var(--background);
+  background-color: #060b08;
+  background-image: 
+    radial-gradient(ellipse at 50% -10%, rgba(22, 52, 32, 0.45) 0%, transparent 70%),
+    radial-gradient(circle at 12% 35%, rgba(16, 40, 24, 0.3) 0%, transparent 55%),
+    radial-gradient(circle at 88% 65%, rgba(20, 48, 29, 0.25) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 115%, rgba(12, 30, 18, 0.5) 0%, #030704 100%);
+  background-attachment: fixed;
   color: var(--foreground);
   font-family: var(--font-inter);
   overflow-x: hidden;
@@ -89,15 +106,15 @@ body {
   color: #ffffff;
 }
 
-/* Film Grain Texture Animation */
+/* Enhanced Film Grain & Noise Texture Overlay */
 .grain-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0%200%20200%20200'%20xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter%20id='noiseFilter'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='0.65'%20numOctaves='3'%20stitchTiles='stitch'/%3E%3C/filter%3E%3Crect%20width='100%25'%20height='100%25'%20filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0%200%20200%20200'%20xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter%20id='noiseFilter'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='0.8'%20numOctaves='3'%20stitchTiles='stitch'/%3E%3C/filter%3E%3Crect%20width='100%25'%20height='100%25'%20filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.06;
   pointer-events: none;
   z-index: 9999;
 }
@@ -117,17 +134,15 @@ body {
   transform: translateY(0%);
 }
 
-/* Glassmorphism panel styles */
+/* Glassmorphism panel styles with green ambient tint */
 .glass-panel {
-  background: rgba(12, 12, 14, 0.6);
+  background: rgba(9, 18, 12, 0.65);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .glass-panel-glow {
-  border: 1px solid rgba(229, 169, 25, 0.15);
-  box-shadow: 0 8px 32px 0 rgba(229, 169, 25, 0.05);
+  border: 1px solid rgba(229, 169, 25, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(229, 169, 25, 0.08), inset 0 0 20px rgba(18, 42, 26, 0.3);
 }
-
-

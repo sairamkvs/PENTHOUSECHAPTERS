@@ -6,10 +6,9 @@ import { gsap } from "gsap";
 export default function CustomCursor() {
   const cursorRef = useRef<HTMLDivElement>(null);
   const followerRef = useRef<HTMLDivElement>(null);
-  const [cursorType, setCursorType] = useState<"default" | "hover" | "view" | "play">("default");
+  const [cursorType, setCursorType] = useState<string>("default");
   const [isVisible, setIsVisible] = useState(false);
-  const [isSnapped, setIsSnapped] = useState(false);
-  
+
   const snappedElRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -18,10 +17,11 @@ export default function CustomCursor() {
       "ontouchstart" in window ||
       navigator.maxTouchPoints > 0 ||
       window.matchMedia("(pointer: coarse)").matches;
-      
+
     if (isTouchDevice) return;
 
     setIsVisible(true);
+    document.documentElement.classList.add("custom-cursor-active");
     document.body.classList.add("custom-cursor-active");
 
     const cursor = cursorRef.current;
@@ -32,11 +32,11 @@ export default function CustomCursor() {
     // Center coordinates origin
     gsap.set([cursor, follower], { xPercent: -50, yPercent: -50 });
 
-    // GSAP quickTo hooks for high performance 60fps tracking
-    const xToCursor = gsap.quickTo(cursor, "x", { duration: 0.08, ease: "power3.out" });
-    const yToCursor = gsap.quickTo(cursor, "y", { duration: 0.08, ease: "power3.out" });
-    const xToFollower = gsap.quickTo(follower, "x", { duration: 0.35, ease: "power3.out" });
-    const yToFollower = gsap.quickTo(follower, "y", { duration: 0.35, ease: "power3.out" });
+    // GSAP quickTo hooks for smooth 60fps tracking
+    const xToCursor = gsap.quickTo(cursor, "x", { duration: 0.05, ease: "power3.out" });
+    const yToCursor = gsap.quickTo(cursor, "y", { duration: 0.05, ease: "power3.out" });
+    const xToFollower = gsap.quickTo(follower, "x", { duration: 0.3, ease: "power3.out" });
+    const yToFollower = gsap.quickTo(follower, "y", { duration: 0.3, ease: "power3.out" });
 
     let lastX = 0;
     let lastY = 0;
@@ -46,49 +46,43 @@ export default function CustomCursor() {
       const clientX = e.clientX;
       const clientY = e.clientY;
 
-      // Calculate velocity for stretching effect
       const dx = clientX - lastX;
       const dy = clientY - lastY;
       const speed = Math.sqrt(dx * dx + dy * dy);
-      
+
       lastX = clientX;
       lastY = clientY;
 
       xToCursor(clientX);
       yToCursor(clientY);
 
-      // Determine snap coordinates or normal follow
       if (snappedElRef.current) {
         const rect = snappedElRef.current.getBoundingClientRect();
         const centerX = rect.left + rect.width / 2;
         const centerY = rect.top + rect.height / 2;
-        
+
         xToFollower(centerX);
         yToFollower(centerY);
       } else {
         xToFollower(clientX);
         yToFollower(clientY);
 
-        // Apply velocity stretch: scale in direction of motion, squeeze perpendicular
+        // Motion angle tilt for dynamic feel
         const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-        const stretchScale = 1 + Math.min(speed * 0.007, 0.35);
-        const squeezeScale = 1 - Math.min(speed * 0.005, 0.25);
+        const stretchScale = 1 + Math.min(speed * 0.005, 0.25);
 
-        gsap.to(follower, {
-          scaleX: stretchScale,
-          scaleY: squeezeScale,
-          rotation: angle,
+        gsap.to(cursor, {
+          rotation: speed > 2 ? angle * 0.12 : 0,
+          scale: speed > 2 ? stretchScale : 1,
           duration: 0.15,
           overwrite: "auto",
         });
 
-        // Spring back to base circle when mouse stops
         clearTimeout(timer);
         timer = setTimeout(() => {
-          gsap.to(follower, {
-            scaleX: 1,
-            scaleY: 1,
+          gsap.to(cursor, {
             rotation: 0,
+            scale: 1,
             duration: 0.3,
             ease: "power2.out",
             overwrite: "auto",
@@ -103,32 +97,35 @@ export default function CustomCursor() {
 
       const cursorTarget = target.closest("[data-cursor]") as HTMLElement;
       const magneticTarget = target.closest("[data-magnetic]") as HTMLElement;
-      
+
       if (magneticTarget) {
         setCursorType("hover");
         snappedElRef.current = magneticTarget;
-        
+
         const rect = magneticTarget.getBoundingClientRect();
-        
-        // Morph outer ring to perfectly frame the magnetic element
+
         gsap.to(follower, {
           width: rect.width + 16,
           height: rect.height + 16,
-          borderRadius: "12px", // rounded corner bounding box
+          borderRadius: "14px",
           borderColor: "#E5A919",
-          backgroundColor: "rgba(229, 169, 25, 0.06)",
-          scaleX: 1,
-          scaleY: 1,
-          rotation: 0,
+          backgroundColor: "rgba(229, 169, 25, 0.08)",
+          opacity: 1,
           duration: 0.25,
           ease: "power2.out",
-          overwrite: "auto"
+          overwrite: "auto",
+        });
+
+        gsap.to(cursor, {
+          scale: 1.4,
+          duration: 0.2,
+          ease: "back.out(1.7)",
         });
       } else if (cursorTarget) {
-        const val = cursorTarget.getAttribute("data-cursor") as any;
-        setCursorType(val || "hover");
+        const val = cursorTarget.getAttribute("data-cursor") || "hover";
+        setCursorType(val);
         snappedElRef.current = null;
-        restoreCircleShape(val || "hover");
+        restoreFollower(val);
       } else if (
         target.tagName === "A" ||
         target.tagName === "BUTTON" ||
@@ -138,27 +135,34 @@ export default function CustomCursor() {
       ) {
         setCursorType("hover");
         snappedElRef.current = null;
-        restoreCircleShape("hover");
+        restoreFollower("hover");
       } else {
         setCursorType("default");
         snappedElRef.current = null;
-        restoreCircleShape("default");
+        restoreFollower("default");
       }
     };
 
-    const restoreCircleShape = (type: string) => {
-      const isInteractive = ["view", "play", "open", "discover", "drag", "scroll"].includes(type);
+    const restoreFollower = (type: string) => {
+      const isInteractive = ["hover", "view", "play", "open", "discover", "drag"].includes(type);
 
-      // Revert from magnetic frame to standard circular cursor dimensions
       gsap.to(follower, {
-        width: type === "default" ? 32 : type === "hover" ? 56 : 90,
-        height: type === "default" ? 32 : type === "hover" ? 56 : 90,
+        width: isInteractive ? 54 : 36,
+        height: isInteractive ? 54 : 36,
         borderRadius: "50%",
-        borderColor: isInteractive || type === "hover" ? "#E5A919" : "rgba(229, 169, 25, 0.3)",
-        backgroundColor: isInteractive ? "rgba(229, 169, 25, 0.12)" : "transparent",
+        borderColor: isInteractive ? "#E5A919" : "rgba(229, 169, 25, 0.3)",
+        backgroundColor: isInteractive ? "rgba(229, 169, 25, 0.08)" : "transparent",
+        opacity: isInteractive ? 1 : 0.6,
         duration: 0.3,
         ease: "power2.out",
-        overwrite: "auto"
+        overwrite: "auto",
+      });
+
+      gsap.to(cursor, {
+        scale: isInteractive ? 1.35 : 1,
+        duration: 0.25,
+        ease: "power2.out",
+        overwrite: "auto",
       });
     };
 
@@ -180,48 +184,69 @@ export default function CustomCursor() {
       window.removeEventListener("mouseover", handleMouseOver);
       document.removeEventListener("mouseleave", handleMouseLeave);
       document.removeEventListener("mouseenter", handleMouseEnter);
+      document.documentElement.classList.remove("custom-cursor-active");
       document.body.classList.remove("custom-cursor-active");
       clearTimeout(timer);
     };
-  }, [cursorType]);
+  }, []);
 
   if (!isVisible) return null;
 
-  const isInteractiveState = ["view", "play", "open", "discover", "drag", "scroll"].includes(cursorType);
+  const isCustomBadge = ["view", "play", "open", "discover", "drag"].includes(cursorType);
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-[9999] hidden md:block">
-      {/* Precision Core Dot (Hidden to let default system cursor show) */}
-      <div
-        ref={cursorRef}
-        className="hidden"
-      />
-
-      {/* Lagging Guide Ring (Vibrant Gold/Yellow outline) */}
+    <div className="pointer-events-none fixed inset-0 z-[99999] hidden md:block select-none">
+      {/* Outer Lagging Aura Ring */}
       <div
         ref={followerRef}
-        className="fixed left-0 top-0 flex flex-col items-center justify-center rounded-full border border-brand-gold/30 shadow-[0_0_12px_rgba(229,169,25,0.1)] transition-all duration-300 gap-1.5"
+        className="fixed left-0 top-0 rounded-full border border-brand-gold/30 shadow-[0_0_15px_rgba(229,169,25,0.15)] transition-colors duration-300 pointer-events-none"
+      />
+
+      {/* Primary Triangle Cursor ▶ (PENTHOUSE P Logo Play Triangle) */}
+      <div
+        ref={cursorRef}
+        className="fixed left-0 top-0 flex flex-col items-center justify-center pointer-events-none"
       >
-        {isInteractiveState && !snappedElRef.current && (
-          <>
-            {/* Elegant SVG "M" Logo (Vibrant Gold) */}
-            <svg
-              className="h-3.5 w-3.5 fill-brand-gold drop-shadow-[0_0_3px_rgba(229,169,25,0.4)] animate-[fadeInShort_0.3s_ease-out]"
-              viewBox="0 0 24 24"
-            >
-              <path d="M3 20V4l9 8 9-8v16h-3V8.5l-6 5.3-6-5.3V20H3z" />
-            </svg>
-            <span className="font-outfit text-[9px] font-bold tracking-[0.2em] text-brand-gold uppercase select-none leading-none animate-[fadeInShort_0.35s_ease-out]">
-              {cursorType}
-            </span>
-          </>
+        <svg
+          width="26"
+          height="26"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="drop-shadow-[0_0_10px_rgba(229,169,25,0.65)] filter"
+        >
+          <defs>
+            <linearGradient id="penthousePlayGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#FFF4BC" />
+              <stop offset="45%" stopColor="#E5A919" />
+              <stop offset="100%" stopColor="#9E6F05" />
+            </linearGradient>
+            <filter id="goldGlowCursor" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="1.5" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+          </defs>
+          <path
+            d="M7 4.5C6.17157 4.0221 5.5 4.40938 5.5 5.36442V18.6356C5.5 19.5906 6.17157 19.9779 7 19.5L18.4142 12.9216C19.2426 12.4437 19.2426 11.5563 18.4142 11.0784L7 4.5Z"
+            fill="url(#penthousePlayGrad)"
+            stroke="#FFE899"
+            strokeWidth="0.8"
+            filter="url(#goldGlowCursor)"
+          />
+        </svg>
+
+        {/* Dynamic Label Badge for interactive states */}
+        {isCustomBadge && !snappedElRef.current && (
+          <span className="mt-1 px-2 py-0.5 rounded-full bg-brand-black/90 border border-brand-gold/40 font-outfit text-[9px] font-bold tracking-[0.2em] text-brand-gold uppercase shadow-lg animate-[fadeInShort_0.2s_ease-out]">
+            {cursorType}
+          </span>
         )}
       </div>
 
       <style jsx global>{`
         @keyframes fadeInShort {
-          from { opacity: 0; transform: scale(0.85); }
-          to { opacity: 1; transform: scale(1); }
+          from { opacity: 0; transform: translateY(4px) scale(0.9); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
         }
       `}</style>
     </div>

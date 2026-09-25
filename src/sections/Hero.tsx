@@ -147,7 +147,7 @@ export default function Hero({ isLoaded = false }: HeroProps) {
             repeat: Infinity,
             ease: "easeInOut",
           }}
-          className="absolute -bottom-1/4 -right-1/4 h-[700px] w-[700px] rounded-full bg-purple-900/15 blur-[130px] mix-blend-screen"
+          className="absolute -bottom-1/4 -right-1/4 h-[700px] w-[700px] rounded-full bg-emerald-900/25 blur-[130px] mix-blend-screen"
         />
         <motion.div
           animate={{
@@ -159,7 +159,7 @@ export default function Hero({ isLoaded = false }: HeroProps) {
             repeat: Infinity,
             ease: "easeInOut",
           }}
-          className="absolute top-1/2 left-1/3 h-[500px] w-[500px] rounded-full bg-amber-600/10 blur-[100px] mix-blend-screen"
+          className="absolute top-1/2 left-1/3 h-[500px] w-[500px] rounded-full bg-emerald-700/15 blur-[100px] mix-blend-screen"
         />
       </div>
 
