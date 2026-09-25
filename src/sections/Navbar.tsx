@@ -18,10 +18,8 @@ const NAV_LINKS = [
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isAudioActive, setIsAudioActive] = useState(false);
 
   // Magnetic refs for buttons
-  //const soundButtonRef = useMagnetic(0.25);
   const ctaButtonRef = useMagnetic(0.25);
   const logoRef = useMagnetic(0.15);
 
@@ -33,19 +31,6 @@ export default function Navbar() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  useEffect(() => {
-    const handleSoundState = (e: any) => {
-      setIsAudioActive(e.detail.active);
-    };
-
-    //window.addEventListener("cinematic-sound-state", handleSoundState as any);
-    return () => window.removeEventListener("cinematic-sound-state", handleSoundState as any);
-  }, []);
-
-  const toggleSound = () => {
-    window.dispatchEvent(new CustomEvent("toggle-cinematic-sound"));
-  };
 
   const handleLinkClick = (href: string) => {
     setIsMobileMenuOpen(false);
@@ -105,23 +90,6 @@ export default function Navbar() {
 
           {/* CTA & Mobile trigger */}
           <div className="flex items-center gap-4">
-            {/* Audio Toggle Widget */}
-            <button
-              onClick={toggleSound}
-              ref={soundButtonRef}
-              className="flex items-center gap-2.5 px-4 py-2 rounded-full border border-white/10 bg-white/5 hover:border-brand-gold/30 hover:bg-brand-gold/5 text-white/80 hover:text-brand-gold transition-all duration-300 font-outfit text-[10px] md:text-xs font-bold tracking-widest cursor-none backdrop-blur-md h-9"
-              data-magnetic
-              title={isAudioActive ? "Mute Ambient Soundtrack" : "Unmute Ambient Soundtrack"}
-            >
-              {/* Animating Waveform Bars */}
-              <div className="flex items-end gap-[3px] h-3 w-4 pb-[1px]">
-                <span className={cn("w-[2px] bg-current rounded-full transition-all duration-300", isAudioActive ? "animate-[wave_1s_ease-in-out_infinite_alternate]" : "h-1")} style={{ animationDelay: "0.1s" }} />
-                <span className={cn("w-[2px] bg-current rounded-full transition-all duration-300", isAudioActive ? "animate-[wave_0.8s_ease-in-out_infinite_alternate]" : "h-1.5")} style={{ animationDelay: "0.3s" }} />
-                <span className={cn("w-[2px] bg-current rounded-full transition-all duration-300", isAudioActive ? "animate-[wave_1.2s_ease-in-out_infinite_alternate]" : "h-2")} style={{ animationDelay: "0.5s" }} />
-                <span className={cn("w-[2px] bg-current rounded-full transition-all duration-300", isAudioActive ? "animate-[wave_0.9s_ease-in-out_infinite_alternate]" : "h-1")} style={{ animationDelay: "0.2s" }} />
-              </div>
-              <span className="hidden sm:inline text-[10px] tracking-widest">{isAudioActive ? "SOUND ON" : "SOUND OFF"}</span>
-            </button>
 
             <a
               href="#contact"

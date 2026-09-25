@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useRef } from "react";
 import { gsap } from "gsap";
-import { Volume2, VolumeX } from "lucide-react";
 
 interface PreloaderProps {
   onComplete: () => void;
@@ -11,55 +10,20 @@ interface PreloaderProps {
 export default function Preloader({ onComplete }: PreloaderProps) {
   const [progress, setProgress] = useState(0);
   const [activeWord, setActiveWord] = useState("VISION");
-  const [isAudioActive, setIsAudioActive] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    let hasPlayedAudioOnce = false;
-
-    const handleSoundState = (e: any) => {
-      setIsAudioActive(e.detail.active);
-      const video = videoRef.current;
-      if (!video) return;
-      if (e.detail.active) {
-        hasPlayedAudioOnce = false;
-        video.muted = false;
-        video.volume = 0.8;
-        video.currentTime = 0;
-        video.play().catch(() => {});
-      } else {
-        video.muted = true;
-      }
-    };
-
-    const handleTimeUpdate = () => {
-      const video = videoRef.current;
-      if (!video || video.muted || hasPlayedAudioOnce) return;
-      if (video.duration > 0 && video.currentTime >= video.duration - 0.3) {
-        hasPlayedAudioOnce = true;
-        video.muted = true;
-        setIsAudioActive(false);
-        window.dispatchEvent(new CustomEvent("cinematic-sound-state", { detail: { active: false } }));
-      }
-    };
-
-    window.addEventListener("cinematic-sound-state", handleSoundState as any);
     const video = videoRef.current;
     if (video) {
-      video.addEventListener("timeupdate", handleTimeUpdate);
+      video.muted = false;
+      video.volume = 0.8;
+      video.play().catch(() => {
+        // Fallback if browser blocks unmuted autoplay before interaction
+        video.muted = true;
+        video.play().catch(() => {});
+      });
     }
-
-    return () => {
-      window.removeEventListener("cinematic-sound-state", handleSoundState as any);
-      if (video) {
-        video.removeEventListener("timeupdate", handleTimeUpdate);
-      }
-    };
   }, []);
-
-  const toggleSound = () => {
-    window.dispatchEvent(new CustomEvent("toggle-cinematic-sound"));
-  };
 
   useEffect(() => {
     // Lock page scroll
@@ -73,6 +37,12 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     // Main ticker timeline
     const tl = gsap.timeline({
       onComplete: () => {
+        // Stop audio when preloader curtain finishes
+        if (videoRef.current) {
+          videoRef.current.muted = true;
+          videoRef.current.pause();
+        }
+
         // Liquid Morphing curtain transition
         const curtainTl = gsap.timeline({
           onComplete: () => {
@@ -83,7 +53,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
           }
         });
 
-        // Morph the SVG path to create an elastic drop/wipe reveal (no MorphSVG plugin required)
+        // Morph the SVG path to create an elastic drop/wipe reveal
         curtainTl.to("#preloader-svg-path", {
           attr: { d: "M 0 0 L 100 0 L 100 0 Q 50 80 0 0 Z" },
           duration: 0.6,
@@ -94,7 +64,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
           ease: "power4.out"
         });
 
-        // Fade out the loading content slightly earlier
+        // Fade out loading content
         curtainTl.to(".preloader-content", {
           opacity: 0,
           y: -50,
@@ -137,8 +107,6 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     };
   }, [onComplete]);
 
-
-
   return (
     <div className="preloader-wrap fixed inset-0 z-[9999] flex flex-col items-center justify-center pointer-events-auto">
       
@@ -161,8 +129,6 @@ export default function Preloader({ onComplete }: PreloaderProps) {
           ref={videoRef}
           src="/Logo Reveal.mov"
           autoPlay
-          loop
-          muted={!isAudioActive}
           playsInline
           className="w-full h-full object-cover opacity-25"
         />
@@ -175,25 +141,6 @@ export default function Preloader({ onComplete }: PreloaderProps) {
 
       {/* Grid Pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:50px_50px] opacity-20 pointer-events-none z-1" />
-
-      {/* Sound Controller Button */}
-      <button
-        onClick={toggleSound}
-        className="absolute top-6 right-6 z-20 flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-brand-black/40 hover:bg-brand-black/75 text-white/90 hover:text-brand-gold transition-all font-outfit text-xs font-semibold tracking-wider cursor-none backdrop-blur-md"
-        data-cursor="hover"
-      >
-        {isAudioActive ? (
-          <>
-            <Volume2 className="h-3.5 w-3.5 text-brand-gold animate-pulse" />
-            SOUND ON
-          </>
-        ) : (
-          <>
-            <VolumeX className="h-3.5 w-3.5" />
-            SOUND OFF
-          </>
-        )}
-      </button>
 
       {/* Loader UI Panel */}
       <div className="preloader-content relative z-10 flex flex-col items-center select-none">
