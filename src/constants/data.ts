@@ -245,7 +245,7 @@ export const BRANDS_DATA = [
 
 export const CONTACT_INFO = {
   phone: "+91 98765 43210",
-  email: "hello@penthousechapters.com",
+  email: "penthousechapters@gmail.com",
   whatsapp: "https://wa.me/919876543210",
   instagram: "https://instagram.com/penthousechapters",
   linkedin: "https://linkedin.com/company/penthousechapters",
