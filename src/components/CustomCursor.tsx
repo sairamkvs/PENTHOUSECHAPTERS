@@ -12,13 +12,12 @@ export default function CustomCursor() {
   const snappedElRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    // Disable on touch devices
-    const isTouchDevice =
-      "ontouchstart" in window ||
-      navigator.maxTouchPoints > 0 ||
-      window.matchMedia("(pointer: coarse)").matches;
+    // Only disable on mobile screens without mouse hover
+    const isMobileTouchOnly =
+      window.innerWidth < 768 &&
+      window.matchMedia("(pointer: coarse) and (hover: none)").matches;
 
-    if (isTouchDevice) return;
+    if (isMobileTouchOnly) return;
 
     setIsVisible(true);
     document.documentElement.classList.add("custom-cursor-active");
