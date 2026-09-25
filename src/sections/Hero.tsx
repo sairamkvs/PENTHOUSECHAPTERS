@@ -23,23 +23,51 @@ export default function Hero({ isLoaded = false }: HeroProps) {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
-  // Control video audio via global sound toggle
+  // Control video audio via global sound toggle - play audio once then auto mute
   useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    let hasPlayedAudioOnce = false;
+
     const handleSoundState = (e: any) => {
-      const video = videoRef.current;
       if (!video) return;
       if (e.detail.active) {
+        hasPlayedAudioOnce = false;
         video.muted = false;
         video.volume = 0.8;
+        video.currentTime = 0;
         video.play().catch(() => {});
       } else {
         video.muted = true;
       }
     };
 
+    const handleTimeUpdate = () => {
+      if (!video || video.muted || hasPlayedAudioOnce) return;
+      if (video.duration > 0 && video.currentTime >= video.duration - 0.3) {
+        hasPlayedAudioOnce = true;
+        video.muted = true;
+        window.dispatchEvent(new CustomEvent("cinematic-sound-state", { detail: { active: false } }));
+      }
+    };
+
+    const handleEnded = () => {
+      if (!video) return;
+      video.muted = true;
+      window.dispatchEvent(new CustomEvent("cinematic-sound-state", { detail: { active: false } }));
+    };
+
     window.addEventListener("cinematic-sound-state", handleSoundState as any);
-    return () => window.removeEventListener("cinematic-sound-state", handleSoundState as any);
-  }, []);
+    video.addEventListener("timeupdate", handleTimeUpdate);
+    video.addEventListener("ended", handleEnded);
+
+    return () => {
+      window.removeEventListener("cinematic-sound-state", handleSoundState as any);
+      video.removeEventListener("timeupdate", handleTimeUpdate);
+      video.removeEventListener("ended", handleEnded);
+    };
+  }, [isLoaded]);
 
   const springConfig = { damping: 40, stiffness: 200, mass: 1 };
   const gridX = useSpring(mouseX, springConfig);

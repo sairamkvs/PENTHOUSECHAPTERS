@@ -15,15 +15,46 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
+    let hasPlayedAudioOnce = false;
+
     const handleSoundState = (e: any) => {
       setIsAudioActive(e.detail.active);
-      if (videoRef.current) {
-        videoRef.current.muted = !e.detail.active;
+      const video = videoRef.current;
+      if (!video) return;
+      if (e.detail.active) {
+        hasPlayedAudioOnce = false;
+        video.muted = false;
+        video.volume = 0.8;
+        video.currentTime = 0;
+        video.play().catch(() => {});
+      } else {
+        video.muted = true;
+      }
+    };
+
+    const handleTimeUpdate = () => {
+      const video = videoRef.current;
+      if (!video || video.muted || hasPlayedAudioOnce) return;
+      if (video.duration > 0 && video.currentTime >= video.duration - 0.3) {
+        hasPlayedAudioOnce = true;
+        video.muted = true;
+        setIsAudioActive(false);
+        window.dispatchEvent(new CustomEvent("cinematic-sound-state", { detail: { active: false } }));
       }
     };
 
     window.addEventListener("cinematic-sound-state", handleSoundState as any);
-    return () => window.removeEventListener("cinematic-sound-state", handleSoundState as any);
+    const video = videoRef.current;
+    if (video) {
+      video.addEventListener("timeupdate", handleTimeUpdate);
+    }
+
+    return () => {
+      window.removeEventListener("cinematic-sound-state", handleSoundState as any);
+      if (video) {
+        video.removeEventListener("timeupdate", handleTimeUpdate);
+      }
+    };
   }, []);
 
   const toggleSound = () => {

@@ -23,11 +23,15 @@ export default function FeaturedReel({ onComplete }: FeaturedReelProps) {
       video.muted = true;
       video.play().catch((err) => console.log("Reel autoplay blocked: ", err));
 
+      let hasPlayedAudioOnce = false;
+
       const handleSoundState = (e: any) => {
         if (!video) return;
         if (e.detail.active) {
+          hasPlayedAudioOnce = false;
           video.muted = false;
           video.volume = 0.8;
+          video.currentTime = 0;
           video.play().catch(() => {});
         } else {
           video.muted = true;
@@ -39,6 +43,11 @@ export default function FeaturedReel({ onComplete }: FeaturedReelProps) {
       const updateProgress = () => {
         if (video.duration) {
           setProgress((video.currentTime / video.duration) * 100);
+          if (!video.muted && !hasPlayedAudioOnce && video.currentTime >= video.duration - 0.3) {
+            hasPlayedAudioOnce = true;
+            video.muted = true;
+            window.dispatchEvent(new CustomEvent("cinematic-sound-state", { detail: { active: false } }));
+          }
         }
       };
 

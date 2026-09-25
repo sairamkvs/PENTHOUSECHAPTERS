@@ -15,7 +15,7 @@ export const SERVICES_DATA: ServiceItem[] = [
     title: "Commercial Films",
     description: "Creative advertising campaigns that capture attention, strengthen brand identity, and inspire customer action.",
     details: ["Advertising Campaigns", "TV Commercials", "Social Ads", "Cinema Ads"],
-    mediaUrl: "https://assets.mixkit.co/videos/preview/mixkit-fashion-woman-with-silver-glitter-makeup-40439-large.mp4"
+    mediaUrl: "https://www.osvnews.com/wp-content/uploads/2023/02/Film-photo-via-Canva-Pro.png"//"https://assets.mixkit.co/videos/preview/mixkit-fashion-woman-with-silver-glitter-makeup-40439-large.mp4"
   },
   {
     id: "corporate-films",
@@ -36,21 +36,21 @@ export const SERVICES_DATA: ServiceItem[] = [
     title: "Product Films",
     description: "High-quality product showcases, launch campaigns, demonstrations, and e-commerce visuals designed to increase engagement and sales.",
     details: ["3D Product Renders", "Close-up Showcases", "Explainer Videos", "Social Commerce"],
-    mediaUrl: "https://assets.mixkit.co/videos/preview/mixkit-pouring-hot-coffee-into-a-cup-41703-large.mp4"
+    mediaUrl: "https://www.explain-it-simple.com/wp-content/uploads/2023/11/side-view-specialized-photographer-working-studio_23-2150247219-1.jpg"//"https://assets.mixkit.co/videos/preview/mixkit-pouring-hot-coffee-into-a-cup-41703-large.mp4"
   },
   {
     id: "social-media",
     title: "Social Media Content",
     description: "Strategic short-form content including Instagram Reels, YouTube videos, campaign creatives, promotional edits, and digital advertisements.",
     details: ["Instagram Reels", "TikTok Creatives", "YouTube Shorts", "Dynamic Promos"],
-    mediaUrl: "https://assets.mixkit.co/videos/preview/mixkit-girl-dancing-with-headphones-on-the-street-40994-large.mp4"
+    mediaUrl: "https://images.unsplash.com/photo-1683721003111-070bcc053d8b?q=80&w=1400&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"//https://assets.mixkit.co/videos/preview/mixkit-girl-dancing-with-headphones-on-the-street-40994-large.mp4"
   },
   {
     id: "photography",
     title: "Photography",
     description: "Premium professional photography spanning commercial, product, corporate, industrial, lifestyle, and architecture.",
     details: ["Commercial & Product", "Corporate Headshots", "Architecture & Interiors", "Lifestyle Shoots"],
-    mediaUrl: "https://images.pexels.com/photos/1476321/pexels-photo-1476321.jpeg?auto=compress&cs=tinysrgb&w=800"
+    mediaUrl: "https://media.istockphoto.com/id/1208507762/photo/natural-view-along-karakorum-mountains-at-hunza-valley-with-cherry-blossom-autumn-season.jpg?s=2048x2048&w=is&k=20&c=y8GD724ts7RvkF56q9tXRIX6F0F76fSJE0abN6l6szM="//"https://images.pexels.com/photos/147632/pexels-photo-1476321.jpeg?auto=compress&cs=tinysrgb&w=800"
   },
   {
     id: "immersive-experiences",
@@ -114,15 +114,19 @@ export const PORTFOLIO_DATA: PortfolioItem[] = [
     title: "The Spirit of Craftsmanship",
     category: "films",
     categoryLabel: "Commercial Film",
-    description: "A visually striking advertisement highlighting artisanal coffee roasting using slow-motion macro cinematography.",
+    description:
+      "A visually striking advertisement highlighting artisanal coffee roasting using slow-motion macro cinematography.",
     mediaType: "video",
-    mediaUrl: "https://assets.mixkit.co/videos/preview/mixkit-pouring-hot-coffee-into-a-cup-41703-large.mp4",
-    videoProvider: "direct",
+    mediaUrl: "https://www.youtube.com/embed/MBvsVObj2v0",
+    videoProvider: "youtube",
     aspectRatio: "video",
     client: "Roasters Guild",
     year: "2025",
-    servicesProvided: ["Director of Photography", "Color Grading", "Post Production"],
-    credits: { director: "Vikram Sen", dop: "Sajid Khan", editor: "Meera Nair" }
+    servicesProvided: [
+      "Director of Photography",
+      "Color Grading",
+      "Post Production",
+    ],
   },
   {
     id: "port-2",
@@ -136,7 +140,7 @@ export const PORTFOLIO_DATA: PortfolioItem[] = [
     client: "Arch-Design Magazine",
     year: "2026",
     servicesProvided: ["Creative Direction", "Architectural Photography"],
-    credits: { director: "Vikram Sen", dop: "Amit Kumar", editor: "Vikram Sen" }
+    //credits: { director: "Vikram Sen", dop: "Amit Kumar", editor: "Vikram Sen" }
   },
   {
     id: "port-3",
@@ -151,7 +155,7 @@ export const PORTFOLIO_DATA: PortfolioItem[] = [
     client: "Vanguard Tech Inc",
     year: "2025",
     servicesProvided: ["Live Multi-Cam Coverage", "Motion Titles", "Highlight Reel Production"],
-    credits: { director: "Rohan Das", dop: "Ramesh Sharma", editor: "Preeti Sahay" }
+    //credits: { director: "Rohan Das", dop: "Ramesh Sharma", editor: "Preeti Sahay" }
   },
   {
     id: "port-4",
@@ -166,7 +170,7 @@ export const PORTFOLIO_DATA: PortfolioItem[] = [
     client: "Glasshouse Developments",
     year: "2025",
     servicesProvided: ["Immersive 360 Video Capture", "Spatial Experience Design", "Aerial Inspection"],
-    credits: { director: "Elena Rostova", dop: "Suresh Babu", editor: "Elena Rostova" }
+    //credits: { director: "Elena Rostova", dop: "Suresh Babu", editor: "Elena Rostova" }
   },
   {
     id: "port-5",
@@ -181,7 +185,7 @@ export const PORTFOLIO_DATA: PortfolioItem[] = [
     client: "Blue Horizon Tourism",
     year: "2026",
     servicesProvided: ["Drone Operations", "Landscape Cinematography", "4K Color Grade"],
-    credits: { director: "Kartik Ayyar", dop: "Siddharth Nair", editor: "Kartik Ayyar" }
+    //credits: { director: "Kartik Ayyar", dop: "Siddharth Nair", editor: "Kartik Ayyar" }
   },
   {
     id: "port-6",
@@ -195,7 +199,7 @@ export const PORTFOLIO_DATA: PortfolioItem[] = [
     client: "Luxe Couture",
     year: "2026",
     servicesProvided: ["Golden Hour Portraiture", "Editorial Styling"],
-    credits: { director: "Zara Hadid", dop: "Zara Hadid", editor: "Zara Hadid" }
+    //credits: { director: "Zara Hadid", dop: "Zara Hadid", editor: "Zara Hadid" }
   },
   {
     id: "port-7",
@@ -210,7 +214,7 @@ export const PORTFOLIO_DATA: PortfolioItem[] = [
     client: "Penthouse Chapters Showreel",
     year: "2026",
     servicesProvided: ["Color Correcting", "Multi-layered compositing", "VFX Transformations"],
-    credits: { director: "Penthouse Chapters Studio", dop: "Various Contributors", editor: "Anish Patel" }
+    //credits: { director: "Penthouse Chapters Studio", dop: "Various Contributors", editor: "Anish Patel" }
   },
   {
     id: "port-8",
@@ -224,7 +228,7 @@ export const PORTFOLIO_DATA: PortfolioItem[] = [
     client: "Presidential Suites Resort",
     year: "2025",
     servicesProvided: ["360 Photography Stills", "Virtual Tour Orchestration"],
-    credits: { director: "Neha Roy", dop: "Neha Roy", editor: "Neha Roy" }
+    //credits: { director: "Neha Roy", dop: "Neha Roy", editor: "Neha Roy" }
   }
 ];
 

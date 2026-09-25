@@ -21,7 +21,7 @@ export default function Navbar() {
   const [isAudioActive, setIsAudioActive] = useState(false);
 
   // Magnetic refs for buttons
-  const soundButtonRef = useMagnetic(0.25);
+  //const soundButtonRef = useMagnetic(0.25);
   const ctaButtonRef = useMagnetic(0.25);
   const logoRef = useMagnetic(0.15);
 
@@ -39,7 +39,7 @@ export default function Navbar() {
       setIsAudioActive(e.detail.active);
     };
 
-    window.addEventListener("cinematic-sound-state", handleSoundState as any);
+    //window.addEventListener("cinematic-sound-state", handleSoundState as any);
     return () => window.removeEventListener("cinematic-sound-state", handleSoundState as any);
   }, []);
 
@@ -60,15 +60,15 @@ export default function Navbar() {
       <header
         className={cn(
           "fixed top-0 inset-x-0 z-50 transition-all duration-300 px-6 py-4 md:px-12",
-          isScrolled 
-            ? "bg-brand-black/70 backdrop-blur-md border-b border-white/5 py-3 shadow-lg" 
+          isScrolled
+            ? "bg-brand-black/70 backdrop-blur-md border-b border-white/5 py-3 shadow-lg"
             : "bg-transparent py-5"
         )}
       >
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           {/* Logo */}
-          <a 
-            href="#hero" 
+          <a
+            href="#hero"
             ref={logoRef}
             className="flex flex-col focus:outline-none cursor-none"
             data-magnetic
