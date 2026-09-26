@@ -7,19 +7,20 @@ export default function CustomCursor() {
   const cursorRef = useRef<HTMLDivElement>(null);
   const followerRef = useRef<HTMLDivElement>(null);
   const [cursorType, setCursorType] = useState<string>("default");
-  const [isVisible, setIsVisible] = useState(false);
+  //const [isVisible, setIsVisible] = useState(false);
 
   const snappedElRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    // Only disable on mobile screens without mouse hover
-    const isMobileTouchOnly =
-      window.innerWidth < 768 &&
-      window.matchMedia("(pointer: coarse) and (hover: none)").matches;
+    // Disable on touch devices
+    const isTouchDevice =
+      "ontouchstart" in window ||
+      navigator.maxTouchPoints > 0 ||
+      window.matchMedia("(pointer: coarse)").matches;
 
-    if (isMobileTouchOnly) return;
+    if (isTouchDevice) return;
 
-    setIsVisible(true);
+    //setIsVisible(true);
     document.documentElement.classList.add("custom-cursor-active");
     document.body.classList.add("custom-cursor-active");
 
@@ -189,7 +190,7 @@ export default function CustomCursor() {
     };
   }, []);
 
-  if (!isVisible) return null;
+  //if (!isVisible) return null;
 
   const isCustomBadge = ["view", "play", "open", "discover", "drag"].includes(cursorType);
 
