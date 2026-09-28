@@ -15,12 +15,12 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   useEffect(() => {
     const video = videoRef.current;
     if (video) {
-      video.muted = false;
+      video.muted = true;
       video.volume = 0.8;
       video.play().catch(() => {
         // Fallback if browser blocks unmuted autoplay before interaction
         video.muted = true;
-        video.play().catch(() => {});
+        video.play().catch(() => { });
       });
     }
   }, []);
@@ -31,9 +31,9 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     document.body.style.overflow = "hidden";
 
     const words = ["VISION", "STORYTELLING", "CINEMATIC", "VISUAL"];
-    
+
     const progressObj = { value: 0 };
-    
+
     // Main ticker timeline
     const tl = gsap.timeline({
       onComplete: () => {
@@ -109,7 +109,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
 
   return (
     <div className="preloader-wrap fixed inset-0 z-[9999] flex flex-col items-center justify-center pointer-events-auto">
-      
+
       {/* Liquid Morphing SVG Background Curtain */}
       <svg
         className="absolute inset-0 w-full h-full fill-brand-black pointer-events-none z-0"

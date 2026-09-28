@@ -117,7 +117,7 @@ export const PORTFOLIO_DATA: PortfolioItem[] = [
     description:
       "A visually striking advertisement highlighting artisanal coffee roasting using slow-motion macro cinematography.",
     mediaType: "video",
-    mediaUrl: "https://www.youtube.com/embed/MBvsVObj2v0?autoplay=1&mute=1&playsinline=1",
+    mediaUrl: "https://www.youtube.com/embed/MBvsVObj2v0?autoplay=1&mute=0&playsinline=1",
     videoProvider: "youtube",
     aspectRatio: "video",
     client: "Roasters Guild",

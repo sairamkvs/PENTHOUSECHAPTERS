@@ -20,7 +20,7 @@ export default function FeaturedReel({ onComplete }: FeaturedReelProps) {
 
     const video = videoRef.current;
     if (video) {
-      video.muted = true;
+      video.muted = false;
       video.play().catch((err) => console.log("Reel autoplay blocked: ", err));
 
       const updateProgress = () => {
@@ -63,13 +63,13 @@ export default function FeaturedReel({ onComplete }: FeaturedReelProps) {
         onComplete();
       }
     })
-    .to(container, {
-      opacity: 0,
-      scale: 1.06,
-      filter: "blur(20px)",
-      duration: 1.0,
-      ease: "power3.inOut"
-    });
+      .to(container, {
+        opacity: 0,
+        scale: 1.06,
+        filter: "blur(20px)",
+        duration: 1.0,
+        ease: "power3.inOut"
+      });
   };
 
   return (
@@ -111,7 +111,7 @@ export default function FeaturedReel({ onComplete }: FeaturedReelProps) {
 
       {/* Bottom Progress Bar & Button Container */}
       <div className="absolute bottom-8 inset-x-8 z-10 flex flex-col sm:flex-row justify-between items-center gap-6">
-        
+
         {/* Progress Tracker bar */}
         <div className="flex items-center gap-4 w-full sm:max-w-xs">
           <span className="font-mono text-[10px] text-white/50">00:12</span>
