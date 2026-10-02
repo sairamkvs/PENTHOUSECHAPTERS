@@ -81,9 +81,8 @@ export default function FeaturedReel({ onComplete }: FeaturedReelProps) {
       <div className="absolute inset-0 z-0">
         <video
           ref={videoRef}
-          src="/Logo Reveal.mov"
+          src="/Logo Reveal.mp4"
           autoPlay
-          loop
           muted
           playsInline
           className="w-full h-full object-cover brightness-[0.75]"
