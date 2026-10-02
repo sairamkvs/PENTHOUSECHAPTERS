@@ -890,7 +890,7 @@ export default function Services() {
                   {/* RIGHT SIDE — MEDIA */}
                   <div className="col-span-7 h-[55vh] rounded-xl overflow-hidden border border-white/10 relative shadow-[0_20px_50px_rgba(0,0,0,0.6)]">
                     <div className="service-horizontal-media-box absolute inset-x-[-15%] inset-y-0 w-[130%] h-full">
-                      {service.mediaUrl?.endsWith(".mp4") ? (
+                      {service.mediaUrl?.match(/\.(mp4|webm|mov|ogg)($|\?)/i) ? (
                         <video
                           src={service.mediaUrl}
                           autoPlay
@@ -1023,8 +1023,8 @@ export default function Services() {
 
                           {service.mediaUrl && (
                             <div className="w-full aspect-video rounded-lg overflow-hidden border border-white/10 bg-brand-black shadow-lg">
-                              {service.mediaUrl.endsWith(
-                                ".mp4"
+                              {service.mediaUrl.match(
+                                /\.(mp4|webm|mov|ogg)($|\?)/i
                               ) ? (
                                 <video
                                   src={service.mediaUrl}
