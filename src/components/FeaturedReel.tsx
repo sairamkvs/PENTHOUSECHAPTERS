@@ -34,7 +34,7 @@ export default function FeaturedReel({ onComplete }: FeaturedReelProps) {
       // Auto-skip after 12 seconds or when video ends
       const autoSkipTimer = setTimeout(() => {
         handleSkip();
-      }, 12000);
+      }, 10000);
 
       video.addEventListener("ended", handleSkip);
 
